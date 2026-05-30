@@ -4,10 +4,11 @@ import { cn } from '@/utils/cn';
 interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   src?: string | null;
   name?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 }
 
 const sizeMap = {
+  xs: 'h-6 w-6 text-[10px]',
   sm: 'h-8 w-8 text-xs',
   md: 'h-10 w-10 text-sm',
   lg: 'h-12 w-12 text-base',

@@ -7,6 +7,7 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
+        default: 'bg-bg-elevated text-text-muted',
         success: 'bg-success-bg text-success',
         warning: 'bg-warning-bg text-warning',
         error: 'bg-error-bg text-error',
@@ -17,6 +18,7 @@ const badgeVariants = cva(
         gradient: 'bg-gradient-to-r from-accent to-pink text-white',
       },
       size: {
+        xs: 'px-1.5 py-0.5 text-[10px]',
         sm: 'px-2 py-0.5 text-[10px]',
         md: 'px-2.5 py-0.5 text-xs',
         lg: 'px-3 py-1 text-sm',

@@ -3,8 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Save, Eye, AlertTriangle,
-  Loader2, CheckCircle2, FileText, RefreshCw,
-  Star, Clock, Award,
+  Loader2, CheckCircle2, FileText,
+  Star, Award,
 } from 'lucide-react';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { submissionService } from '@/services/submissions';
@@ -14,7 +14,6 @@ import { DynamicSubmissionForm } from '@/components/submission/dynamic-submissio
 import { SubmissionPreview } from '@/components/submission/submission-preview';
 import { SubmissionHistory } from '@/components/submission/submission-history';
 import { DeadlineTimer } from '@/components/submission/deadline-timer';
-import { useAutoSave } from '@/hooks/use-auto-save';
 import { useDebounce } from '@/hooks/use-debounce';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -300,8 +299,8 @@ export function SubmissionEditPage() {
 
   if (showPreview && stageForPreview) {
     const previewFields = (isNew
-      ? ((stage?.requirements as Array<Record<string, unknown>>) ?? [])
-      : ((submission?.stage?.requirements as Array<Record<string, unknown>>) ?? [])
+      ? ((stage?.requirements as unknown as Array<Record<string, unknown>>) ?? [])
+      : ((submission?.stage?.requirements as unknown as Array<Record<string, unknown>>) ?? [])
     ).map((r) => ({
       key: r.key as string,
       label: r.label as string,
@@ -375,7 +374,7 @@ export function SubmissionEditPage() {
             <Card className="p-6">
               <DynamicSubmissionForm
                 requirements={isNew
-                  ? ((stage?.requirements as Array<Record<string, unknown>>) ?? []).map((r) => ({
+                  ? ((stage?.requirements as unknown as Array<Record<string, unknown>>) ?? []).map((r) => ({
                       key: r.key as string,
                       label: r.label as string,
                       type: r.type as string,
@@ -383,7 +382,7 @@ export function SubmissionEditPage() {
                       placeholder: r.placeholder as string | undefined,
                       validation: r.validation as Record<string, unknown> | undefined,
                     }))
-                  : ((submission?.stage?.requirements as Array<Record<string, unknown>>) ?? []).map((r) => ({
+                  : ((submission?.stage?.requirements as unknown as Array<Record<string, unknown>>) ?? []).map((r) => ({
                       key: r.key as string,
                       label: r.label as string,
                       type: r.type as string,

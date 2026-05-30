@@ -1,9 +1,8 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, Check, X, RefreshCw, Search, Users, Loader2,
-  DollarSign, Calendar, Filter, AlertTriangle,
+  Check, X, RefreshCw, Search,
 } from 'lucide-react';
 import { useState } from 'react';
 import { registrationService } from '@/services/registrations';
@@ -16,7 +15,6 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ErrorState } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
-import { Loading } from '@/components/shared/loading';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/utils/cn';
 import type { Registration } from '@/types/registration';
@@ -32,7 +30,6 @@ const statusColors: Record<string, 'warning' | 'success' | 'error' | 'default'> 
 
 export function RegistrationsPage() {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
 
@@ -49,12 +46,6 @@ export function RegistrationsPage() {
       if (search) params.search = search;
       return registrationService.list(params).then((r) => (r.data ?? r) as Registration[]);
     },
-    enabled: !!hackathon?.id,
-  });
-
-  const { data: stats } = useQuery({
-    queryKey: ['registration-stats', hackathon?.id],
-    queryFn: () => registrationService.stats(hackathon!.id).then((r) => r.data ?? r) as Promise<Record<string, number>>,
     enabled: !!hackathon?.id,
   });
 
@@ -130,7 +121,7 @@ export function RegistrationsPage() {
           { label: 'Rejected', count: rejected.length, color: 'text-error' },
         ].map((stat) => (
           <Card key={stat.label} className="p-4 text-center">
-            <p className="text-2xl font-bold" className2={stat.color}>{stat.count}</p>
+            <p className={cn('text-2xl font-bold', stat.color)}>{stat.count}</p>
             <p className="text-xs text-text-muted mt-0.5">{stat.label}</p>
           </Card>
         ))}

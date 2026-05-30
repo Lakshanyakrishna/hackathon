@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { CheckCircle2, Circle, Clock, AlertTriangle, FileText } from 'lucide-react';
+import { CheckCircle2, Circle, Clock, FileText } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

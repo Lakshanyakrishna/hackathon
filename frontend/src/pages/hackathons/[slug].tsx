@@ -2,8 +2,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
-  ArrowRight, RefreshCw, Calendar, Clock, DollarSign, Users,
-  CheckCircle2, AlertTriangle, Loader2,
+  ArrowRight, Calendar, Clock, DollarSign, Users,
+  CheckCircle2, AlertTriangle,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { hackathonService } from '@/services/hackathons';
@@ -19,10 +19,8 @@ import { StageTimeline } from '@/components/dashboard/stage-timeline';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { ErrorState } from '@/components/shared/error-state';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/utils/cn';
 import { buildStageTimeline, timeUntil, isUrgent } from '@/utils/dashboard-utils';
 import type { Hackathon, StageConfig, Rule, Prize, ProblemStatement, Announcement } from '@/types/hackathon';
 import type { Registration } from '@/types/registration';

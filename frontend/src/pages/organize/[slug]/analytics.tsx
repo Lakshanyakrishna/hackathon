@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
-  BarChart3, Users, DollarSign, CheckCircle2, ArrowUpDown,
+  Users, DollarSign, CheckCircle2,
   FileText, TrendingUp, Download, RefreshCw,
 } from 'lucide-react';
 import { analyticsService } from '@/services/analytics';
@@ -12,19 +12,9 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ErrorState } from '@/components/shared/error-state';
-import { EmptyState } from '@/components/shared/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/utils/cn';
 import type { Hackathon } from '@/types/hackathon';
-
-const FUNNEL_STAGES = [
-  { key: 'registration', label: 'Registration', icon: Users, color: 'text-accent' },
-  { key: 'payment', label: 'Payment', icon: DollarSign, color: 'text-success' },
-  { key: 'approval', label: 'Approval', icon: CheckCircle2, color: 'text-accent' },
-  { key: 'team', label: 'Team Formation', icon: Users, color: 'text-accent' },
-  { key: 'submission', label: 'Submission', icon: FileText, color: 'text-pink' },
-  { key: 'promotion', label: 'Stage Progression', icon: TrendingUp, color: 'text-warning' },
-];
 
 export function AnalyticsPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -41,7 +31,6 @@ export function AnalyticsPage() {
 
   const {
     data: funnel,
-    isError: funnelError,
   } = useQuery({
     queryKey: ['analytics-funnel', hackathon?.id],
     queryFn: () => analyticsService.funnel(hackathon!.id).then((r) => r.data ?? r),
@@ -54,7 +43,7 @@ export function AnalyticsPage() {
     refetch: refetchReg,
   } = useQuery({
     queryKey: ['registrations', hackathon?.id],
-    queryFn: () => registrationService.list({ hackathonId: hackathon!.id }).then((r) => (r.data ?? r) as Array<Record<string, unknown>>),
+    queryFn: () => registrationService.list({ hackathonId: hackathon!.id }).then((r) => (r.data ?? r) as unknown as Array<Record<string, unknown>>),
     enabled: !!hackathon?.id,
   });
 

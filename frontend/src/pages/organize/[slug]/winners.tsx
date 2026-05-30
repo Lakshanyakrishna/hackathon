@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import {
   Trophy, Plus, Trash2, RefreshCw, Medal, Award, Star,
-  Sparkles, Palette, Loader2, Users, Search, AlertTriangle,
+  Palette, Loader2,
 } from 'lucide-react';
 import { winnerService } from '@/services/winners';
 import { hackathonService } from '@/services/hackathons';

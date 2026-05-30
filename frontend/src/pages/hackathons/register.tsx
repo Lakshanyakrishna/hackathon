@@ -1,4 +1,4 @@
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -13,13 +13,11 @@ import { teamService } from '@/services/teams';
 import { paymentService, type OrderResponse } from '@/services/payments';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Avatar } from '@/components/ui/avatar';
 import { ErrorState } from '@/components/shared/error-state';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/utils/cn';
-import { useAuthStore } from '@/stores/auth-store';
 import type { Hackathon } from '@/types/hackathon';
 import type { Team, TeamMember } from '@/types/team';
 import type { Registration } from '@/types/registration';
@@ -70,7 +68,6 @@ export function RegisterPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const user = useAuthStore((s) => s.user);
 
   const saved = slug ? loadWizardState(slug) : null;
   const [step, setStep_] = useState<WizardState['step']>(saved?.step ?? 'overview');
@@ -95,6 +92,11 @@ export function RegisterPage() {
     setSelectedTeamId_(v);
     if (slug) saveWizardState(slug, { step, teamName, selectedTeamId: v, registrationId });
   }, [slug, step, teamName, registrationId]);
+
+  const setRegistrationId = useCallback((v: string | null) => {
+    setRegistrationId_(v);
+    if (slug) saveWizardState(slug, { step, teamName, selectedTeamId, registrationId: v });
+  }, [slug, step, teamName, selectedTeamId]);
 
   const { data: hackathon, isLoading } = useQuery({
     queryKey: ['hackathon', slug],
@@ -235,7 +237,7 @@ export function RegisterPage() {
     );
   }
 
-  const hasFee = hackathon.registrationFee && parseFloat(hackathon.registrationFee) > 0;
+  const hasFee = Boolean(hackathon.registrationFee && parseFloat(hackathon.registrationFee) > 0);
 
   const visibleSteps = stepOrder.filter((s) => shouldShowStep(s, hasFee, hackathon.maxTeamSize));
   const currentStepIndex = visibleSteps.indexOf(step);

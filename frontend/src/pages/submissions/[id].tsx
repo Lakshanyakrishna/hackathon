@@ -2,8 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, Edit, Clock, User, CheckCircle2, Lock,
-  FileText, AlertTriangle, ExternalLink,
+  ArrowLeft, Edit, Lock, FileText,
 } from 'lucide-react';
 import { submissionService } from '@/services/submissions';
 import { SubmissionHistory } from '@/components/submission/submission-history';
@@ -54,7 +53,7 @@ export function SubmissionDetailPage() {
   }
 
   const data = (submission.data ?? {}) as Record<string, string>;
-  const requirements = (submission.stage?.requirements as Array<{ key: string; label: string; type: string; required: boolean }>) ?? [];
+  const requirements = (submission.stage?.requirements as unknown as Array<{ key: string; label: string; type: string; required: boolean }>) ?? [];
 
   return (
     <div className="mx-auto max-w-4xl py-8">

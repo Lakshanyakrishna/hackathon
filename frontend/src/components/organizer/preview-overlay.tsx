@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Eye, Users, Calendar, DollarSign, CheckCircle2,
-  Clock, ArrowRight, User, Shield, Ban, Award,
+  ArrowRight, User, Shield, Ban, Award,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

@@ -1,19 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Trophy, Medal, Award, Star, Crown, Users, ExternalLink, Sparkles } from 'lucide-react';
+import { Trophy, Users } from 'lucide-react';
 import { hackathonService } from '@/services/hackathons';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
-import { cn } from '@/utils/cn';
 import type { Hackathon } from '@/types/hackathon';
-import type { Winner } from '@/types/winner';
-
-interface HackathonWithWinners extends Hackathon {
-  winners?: Winner[];
-}
 
 export function HallOfFamePage() {
   const { data: hackathons, isLoading, isError, refetch } = useQuery({

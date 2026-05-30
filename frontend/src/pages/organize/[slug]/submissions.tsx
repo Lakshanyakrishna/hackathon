@@ -1,28 +1,23 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, Search, RefreshCw, Eye, Filter, CheckCircle2,
-  Clock, AlertTriangle, Loader2, Users, FileText, BarChart3,
-  Rocket, ExternalLink,
+  Search, RefreshCw, Eye, CheckCircle2,
+  Users, FileText, BarChart3,
 } from 'lucide-react';
 import { useState } from 'react';
 import { submissionService } from '@/services/submissions';
 import { hackathonService } from '@/services/hackathons';
-import { promotionService } from '@/services/promotions';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ErrorState } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
-import { Loading } from '@/components/shared/loading';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/utils/cn';
 import type { Submission } from '@/types/submission';
 import type { Hackathon, StageConfig } from '@/types/hackathon';
-import type { LeaderboardEntry } from '@/types/score';
 
 export function SubmissionsPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -122,7 +117,7 @@ export function SubmissionsPage() {
         {stagesSorted.map((s) => (
           <Button
             key={s.id}
-            variant={stageFilter === s.id ? 'default' : 'outline'}
+            variant={stageFilter === s.id ? 'primary' : 'outline'}
             size="sm"
             onClick={() => setStageFilter(stageFilter === s.id ? 'all' : s.id)}
           >

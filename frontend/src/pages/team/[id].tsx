@@ -3,8 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Users, Shield, Mail, Copy, CheckCircle2, XCircle,
-  Clock, MoreHorizontal, Loader2, UserPlus, LogOut, Lock,
-  AlertTriangle, ChevronRight, Send,
+  Clock, Loader2, UserPlus, LogOut, Lock,
+  AlertTriangle, Send,
 } from 'lucide-react';
 import { useState } from 'react';
 import { teamService } from '@/services/teams';
@@ -17,9 +17,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ErrorState } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/utils/cn';
 import { useAuthStore } from '@/stores/auth-store';
-import type { Team, TeamMember, TeamInvitation } from '@/types/team';
+import type { Team, TeamInvitation } from '@/types/team';
 
 export function TeamDetailPage() {
   const { id } = useParams<{ id: string }>();

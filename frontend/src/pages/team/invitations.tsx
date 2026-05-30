@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Check, X, Clock, Mail, User, RefreshCw, ExternalLink } from 'lucide-react';
+import { Check, X, Clock, Mail, RefreshCw } from 'lucide-react';
 import { teamService } from '@/services/teams';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -8,11 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
 import { Loading } from '@/components/shared/loading';
-import { useNavigate } from 'react-router-dom';
 import type { TeamInvitation } from '@/types/team';
 
 export function PendingInvitationsPage() {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { data: invitations, isLoading, isError, refetch } = useQuery({

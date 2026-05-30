@@ -1,4 +1,4 @@
-import { Plus, Trash2, GripVertical, ChevronUp, ChevronDown } from 'lucide-react';
+import { Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';

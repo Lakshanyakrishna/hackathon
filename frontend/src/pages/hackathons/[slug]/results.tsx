@@ -2,18 +2,16 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
-  Trophy, Medal, Award, Star, Palette, Users,
-  ExternalLink, Crown,
+  Trophy, Medal, Award, Star, Palette,
+  Crown,
 } from 'lucide-react';
 import { winnerService } from '@/services/winners';
 import { hackathonService } from '@/services/hackathons';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/utils/cn';
 import type { Winner } from '@/types/winner';
 import type { Hackathon } from '@/types/hackathon';
 

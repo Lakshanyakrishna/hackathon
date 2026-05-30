@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Loader2, Clock, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Save, Loader2, CheckCircle2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,11 +13,6 @@ interface RequirementField {
   required: boolean;
   placeholder?: string;
   validation?: Record<string, unknown>;
-}
-
-interface FieldValue {
-  key: string;
-  value: unknown;
 }
 
 interface DynamicSubmissionFormProps {

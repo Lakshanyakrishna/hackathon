@@ -2,7 +2,7 @@ import type { Hackathon, StageConfig } from './hackathon';
 import type { Registration } from './registration';
 import type { Team } from './team';
 import type { Submission } from './submission';
-import type { Notification } from './api';
+import type { Notification, ActivityLog } from './api';
 
 export type NextActionType =
   | 'BROWSE_HACKATHONS'
@@ -34,7 +34,7 @@ export interface DashboardData {
   submissions: Submission[];
   pendingInvitations: number;
   recentNotifications: Notification[];
-  recentActivityLogs: Notification[];
+  recentActivityLogs: ActivityLog[];
   activityLogsLoading: boolean;
   activityLogsError: string | null;
   nextAction: NextAction;

@@ -4,10 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useCallback } from 'react';
 import {
   LayoutDashboard, ArrowUpDown, FileText, Award, Megaphone, Settings,
-  Plus, Pencil, Trash2, RefreshCw, Save, Eye, ExternalLink,
-  Loader2, CheckCircle2, XCircle, AlertTriangle, Star, Users,
-  Calendar, DollarSign, Clock, Search, Filter, BarChart3,
-  Trophy,   ChevronDown, ChevronUp, Globe, Lock,
+  Plus, Pencil, Trash2, Save, Eye, ExternalLink,
+  Loader2, CheckCircle2, AlertTriangle, Users,
+  Calendar, DollarSign, Clock,
+  Trophy, ChevronDown, ChevronUp, Globe, Lock,
 } from 'lucide-react';
 import { hackathonService } from '@/services/hackathons';
 import { analyticsService } from '@/services/analytics';
@@ -36,7 +36,6 @@ import type {
   EvaluationCriterion, PromotionRule,
 } from '@/types/hackathon';
 import type { AnalyticsFunnel } from '@/types/api';
-import type { Submission } from '@/types/submission';
 import type { Registration } from '@/types/registration';
 
 export function OrganizerWorkspacePage() {
@@ -161,17 +160,10 @@ function OverviewTab({ hackathon }: { hackathon: Hackathon }) {
     enabled: !!hackathon.id,
   });
 
-  const { data: submissions } = useQuery({
-    queryKey: ['submissions', hackathon.id],
-    queryFn: () => hackathonService.stages.list(hackathon.id).then(() => [] as Submission[]),
-    enabled: false,
-  });
-
   const allRegs = registrations ?? [];
   const approved = allRegs.filter((r) => r.status === 'APPROVED').length;
   const pending = allRegs.filter((r) => r.status === 'PENDING_APPROVAL' || r.status === 'PENDING_PAYMENT').length;
   const paid = allRegs.filter((r) => r.payment?.status === 'SUCCESS').length;
-  const summary = funnel?.summary;
 
   return (
     <div className="space-y-6">
@@ -278,7 +270,7 @@ function StagesSection({ hackathon }: { hackathon: Hackathon }) {
   const [editingStage, setEditingStage] = useState<StageConfig | null>(null);
   const [form, setForm] = useState<StageForm>(emptyStageForm);
 
-  const { data: stages, isLoading, refetch } = useQuery({
+  const { data: stages, isLoading } = useQuery({
     queryKey: ['hackathon-stages', hackathon.id],
     queryFn: () => hackathonService.stages.list(hackathon.id).then((r) => (r.data ?? r) as StageConfig[]),
   });
@@ -313,7 +305,7 @@ function StagesSection({ hackathon }: { hackathon: Hackathon }) {
       name: s.name, description: s.description ?? '',
       startDate: s.startDate ? s.startDate.slice(0, 16) : '', endDate: s.endDate ? s.endDate.slice(0, 16) : '',
       isActive: s.isActive,
-      requirements: (s.requirements as StageForm['requirements']) ?? [],
+      requirements: (s.requirements as unknown as StageForm['requirements']) ?? [],
       evaluationCriteria: (s.evaluationCriteria as StageForm['evaluationCriteria']) ?? [],
       promotionType: s.promotionRule?.type ?? 'MANUAL_SELECTION',
       promotionValue: s.promotionRule?.value?.toString() ?? '',
@@ -446,7 +438,6 @@ function RulesSection({ hackathon }: { hackathon: Hackathon }) {
 
   const reset = () => { setTitle(''); setDescription(''); setEditing(null); };
   const openCreate = () => { reset(); setModalOpen(true); };
-  const openEdit = (r: Rule) => { setEditing(r); setTitle(r.title); setDescription(r.description ?? ''); setModalOpen(true); };
   const handleSave = () => {
     const data = { title, description, order: editing?.order ?? sorted.length + 1 };
     if (editing) updateMut.mutate({ id: editing.id, data });
@@ -643,7 +634,7 @@ function ProblemsSection({ hackathon }: { hackathon: Hackathon }) {
   const addToast = useUIStore((s) => s.addToast);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<ProblemStatement | null>(null);
-  const [form, setForm] = useState({ title: '', description: '', difficulty: 'MEDIUM' as const, technologies: '', resources: '', isActive: true });
+  const [form, setForm] = useState({ title: '', description: '', difficulty: 'MEDIUM' as 'EASY' | 'MEDIUM' | 'HARD', technologies: '', resources: '', isActive: true });
 
   const { data: problems, isLoading } = useQuery({
     queryKey: ['hackathon-problems', hackathon.id],
@@ -723,7 +714,7 @@ function ProblemsSection({ hackathon }: { hackathon: Hackathon }) {
           <Input label="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. Smart City Dashboard" />
           <Textarea label="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Detailed description..." className="min-h-[100px]" />
           <div className="grid gap-4 sm:grid-cols-2">
-            <Select label="Difficulty" value={form.difficulty} onChange={(e) => setForm({ ...form, difficulty: e.target.value })} options={[
+            <Select label="Difficulty" value={form.difficulty} onChange={(e) => setForm({ ...form, difficulty: e.target.value as 'EASY' | 'MEDIUM' | 'HARD' })} options={[
               { label: 'Easy', value: 'EASY' },
               { label: 'Medium', value: 'MEDIUM' },
               { label: 'Hard', value: 'HARD' },
@@ -1022,7 +1013,7 @@ function SettingsSection({ hackathon, onUpdate }: { hackathon: Hackathon; onUpda
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Select label="Mode" value={form.mode} onChange={(e) => setForm({ ...form, mode: e.target.value })} options={[
+            <Select label="Mode" value={form.mode} onChange={(e) => setForm({ ...form, mode: e.target.value as 'ONLINE' | 'OFFLINE' | 'HYBRID' })} options={[
               { label: 'Online', value: 'ONLINE' },
               { label: 'Offline', value: 'OFFLINE' },
               { label: 'Hybrid', value: 'HYBRID' },

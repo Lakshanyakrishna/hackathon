@@ -1,3 +1,5 @@
+import type { EvaluationCriterion } from './hackathon';
+
 export interface Submission {
   id: string;
   teamId: string;
@@ -19,6 +21,8 @@ export interface Submission {
     name: string;
     order: number;
     requirements?: Record<string, unknown> | null;
+    endDate?: string | null;
+    evaluationCriteria?: EvaluationCriterion[] | null;
   };
   team?: { id: string; name: string };
 }

@@ -1,8 +1,6 @@
 import { motion } from 'framer-motion';
-import { Clock, Calendar, AlertTriangle, ChevronRight } from 'lucide-react';
+import { Clock, Calendar, AlertTriangle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { timeUntil, isUrgent } from '@/utils/dashboard-utils';
 import type { StageConfig } from '@/types/hackathon';
 import type { Registration } from '@/types/registration';
