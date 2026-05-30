@@ -47,10 +47,8 @@ VITE_RAZORPAY_KEY_ID=rzp_live_xxxxxxxx
 
 ```bash
 cd backend
-npx prisma db push
+npx prisma migrate deploy
 ```
-
-> **Note:** This project uses `prisma db push` (no migration files). `prisma migrate deploy` will not work. Use `prisma db push` to sync the schema.
 
 ### 2. Backend (Railway)
 
@@ -75,7 +73,7 @@ Add PostgreSQL plugin and all environment variables above.
 After deployment, verify:
 
 ```bash
-curl https://api.yourbackend.com/health
+curl https://api.yourbackend.com/api/v1/health
 # → { "status": "ok", "timestamp": "...", "uptime": 123 }
 ```
 
@@ -90,21 +88,19 @@ curl https://api.yourbackend.com/health
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Health endpoint | ✅ Added | `GET /health` returns status, timestamp, uptime |
+| Health endpoint | ✅ Added | `GET /api/v1/health` returns status, timestamp, uptime |
 | CORS | ✅ Configurable | Uses `FRONTEND_URL` env var |
-| Prisma migrations | ⚠️ `db push` only | No migration files; use `db push` for schema sync |
-| Email service | ❌ Not implemented | Password reset logs to console only; no SMTP integration |
+| Prisma migrations | ✅ Created | `prisma migrate deploy` works on fresh DB |
+| Email service | ✅ Implemented | Nodemailer-based; falls back to console log if SMTP not configured |
 | Production logging | ⚠️ Basic | Uses NestJS default Logger; no structured JSON logging |
 | Frontend API_BASE | ✅ Configurable | VITE_API_URL env var or falls back to `/api/v1` |
 
 ## Production Recommendations
 
 1. Add structured JSON logging (`pino` + `nestjs-pino`)
-2. Implement email service (`nodemailer` or SendGrid/Mailgun)
-3. Create Prisma migration files before production DB changes
-4. Set up database backups
-5. Add monitoring (Sentry for errors, PM2 for process management)
-6. Rate limiting is already enabled via `@nestjs/throttler` (100 req/min)
+2. Set up database backups
+3. Add monitoring (Sentry for errors, PM2 for process management)
+4. Rate limiting is already enabled via `@nestjs/throttler` (100 req/min)
 
 ## Monitoring
 
