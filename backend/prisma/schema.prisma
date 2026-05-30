@@ -1,0 +1,492 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ORGANIZER
+  PARTICIPANT
+}
+
+enum HackathonStatus {
+  DRAFT
+  PUBLISHED
+  ONGOING
+  COMPLETED
+  ARCHIVED
+}
+
+enum HackathonMode {
+  ONLINE
+  OFFLINE
+  HYBRID
+}
+
+enum RegistrationMode {
+  OPEN
+  APPROVAL_REQUIRED
+}
+
+enum RegistrationStatus {
+  PENDING_PAYMENT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum SubmissionStatus {
+  DRAFT
+  SUBMITTED
+  LOCKED
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum NotificationType {
+  PAYMENT_SUCCESS
+  TEAM_INVITATION
+  TEAM_INVITATION_ACCEPTED
+  REGISTRATION_APPROVED
+  REGISTRATION_REJECTED
+  SUBMISSION_SUBMITTED
+  SUBMISSION_REVIEWED
+  ANNOUNCEMENT
+  HACKATHON_STARTING
+  HACKATHON_ENDING
+  SCORE_ADDED
+  TEAM_PROMOTED
+}
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  username        String    @unique
+  password        String
+  name            String
+  avatar          String?
+  phone           String?
+  college         String?
+  year            Int?
+  role            UserRole  @default(PARTICIPANT)
+  isEmailVerified Boolean   @default(false)
+  refreshToken    String?
+  resetToken      String?
+  resetTokenExp   DateTime?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  ownedTeams           Team[]              @relation("TeamOwner")
+  organizedHackathons  Hackathon[]
+  teamMembers          TeamMember[]
+  sentInvitations      TeamInvitation[]    @relation("Inviter")
+  receivedInvitations  TeamInvitation[]    @relation("Invitee")
+  registrations        Registration[]
+  payments             Payment[]
+  activityLogs         ActivityLog[]
+  notifications        Notification[]
+  scores               Score[]
+
+  @@index([email])
+  @@index([username])
+  @@index([role])
+}
+
+model Hackathon {
+  id                  String           @id @default(uuid())
+  title               String
+  slug                String           @unique
+  description         String
+  banner              String?
+  startDate           DateTime
+  endDate             DateTime
+  registrationFee     Decimal          @db.Decimal(10, 2) @default(0)
+  registrationDeadline DateTime
+  registrationMode    RegistrationMode @default(OPEN)
+  minTeamSize         Int              @default(1)
+  maxTeamSize         Int              @default(4)
+  mode                HackathonMode    @default(ONLINE)
+  meetingLink         String?
+  status              HackathonStatus  @default(DRAFT)
+  organizerId         String
+  organizer           User             @relation(fields: [organizerId], references: [id])
+
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  stages              StageConfig[]
+  rules               Rule[]
+  prizes              Prize[]
+  problemStatements   ProblemStatement[]
+  announcements       Announcement[]
+  teams               Team[]
+  registrations       Registration[]
+  submissions         Submission[]
+  activityLogs        ActivityLog[]
+  payments            Payment[]
+  winners             Winner[]
+
+  @@index([organizerId])
+  @@index([status])
+  @@index([slug])
+}
+
+model StageConfig {
+  id          String   @id @default(uuid())
+  hackathonId String
+  hackathon   Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  order       Int
+  startDate   DateTime?
+  endDate     DateTime?
+  isActive    Boolean  @default(true)
+
+  requirements       Json?
+  evaluationCriteria Json?
+  promotionRule      Json?
+
+  promotionExecuted  Boolean  @default(false)
+  promotedAt         DateTime?
+  promotedBy         String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  submissions Submission[]
+  scores      Score[]
+
+  @@unique([hackathonId, order])
+  @@index([hackathonId])
+}
+
+model Team {
+  id              String   @id @default(uuid())
+  name            String
+  description     String?
+  hackathonId     String
+  hackathon       Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  ownerId         String
+  owner           User     @relation("TeamOwner", fields: [ownerId], references: [id])
+  isLocked        Boolean  @default(false)
+  isDisqualified  Boolean  @default(false)
+  // TEMPORARY: Will be replaced by TeamStageStatus(teamId, stageId, status) in future
+  // to support richer per-stage progression workflows (promoted, eliminated, waitlisted, etc.)
+  promotedToStageOrder Int   @default(1)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  members         TeamMember[]
+  invitations     TeamInvitation[]
+  submissions     Submission[]
+  scores          Score[]
+  registrations   Registration[]
+  winners         Winner[]
+
+  @@unique([hackathonId, name])
+  @@index([hackathonId])
+  @@index([ownerId])
+}
+
+model TeamMember {
+  id        String   @id @default(uuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  role      String   @default("MEMBER")
+  joinedAt  DateTime @default(now())
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+}
+
+model TeamInvitation {
+  id          String           @id @default(uuid())
+  teamId      String
+  team        Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  inviterId   String
+  inviter     User             @relation("Inviter", fields: [inviterId], references: [id])
+  inviteeId   String?
+  invitee     User?            @relation("Invitee", fields: [inviteeId], references: [id])
+  email       String?
+  status      InvitationStatus @default(PENDING)
+  expiresAt   DateTime
+  respondedAt DateTime?
+
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([teamId])
+  @@index([inviteeId])
+  @@index([email])
+  @@index([status])
+}
+
+model Registration {
+  id              String             @id @default(uuid())
+  userId          String
+  user            User               @relation(fields: [userId], references: [id])
+  hackathonId     String
+  hackathon       Hackathon          @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  teamId          String?
+  team            Team?              @relation(fields: [teamId], references: [id])
+  status          RegistrationStatus @default(PENDING_PAYMENT)
+  approvedAt      DateTime?
+  approvedBy      String?
+  registeredAt    DateTime           @default(now())
+
+  payment         Payment?
+
+  @@unique([userId, hackathonId])
+  @@index([hackathonId])
+  @@index([userId])
+  @@index([teamId])
+  @@index([status])
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  userId            String
+  user              User          @relation(fields: [userId], references: [id])
+  hackathonId       String
+  hackathon         Hackathon     @relation(fields: [hackathonId], references: [id])
+  registrationId    String?       @unique
+  registration      Registration? @relation(fields: [registrationId], references: [id])
+  amount            Decimal @db.Decimal(10, 2)
+  currency          String        @default("INR")
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?
+  status            PaymentStatus @default(PENDING)
+  paidAt            DateTime?
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([hackathonId])
+  @@index([razorpayOrderId])
+  @@index([status])
+}
+
+model Submission {
+  id                String           @id @default(uuid())
+  teamId            String
+  team              Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  hackathonId       String
+  hackathon         Hackathon        @relation(fields: [hackathonId], references: [id])
+  stageId           String
+  stage             StageConfig      @relation(fields: [stageId], references: [id])
+  version           Int              @default(1)
+
+  data              Json?
+
+  title             String?
+  description       String?
+  notes             String?
+
+  status            SubmissionStatus @default(DRAFT)
+  submittedAt       DateTime?
+  submittedBy       String?
+
+  previousVersionId String?
+  previousVersion   Submission?     @relation("SubmissionVersions", fields: [previousVersionId], references: [id])
+  subsequentVersions Submission[]   @relation("SubmissionVersions")
+
+  reviewedBy        String?
+  reviewNotes       String?
+
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@unique([teamId, stageId, version])
+  @@index([teamId])
+  @@index([stageId])
+  @@index([hackathonId])
+  @@index([status])
+}
+
+model Score {
+  id           String   @id @default(uuid())
+  organizerId  String
+  organizer    User     @relation(fields: [organizerId], references: [id])
+  teamId       String
+  team         Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  stageId      String?
+  stage        StageConfig? @relation(fields: [stageId], references: [id])
+  criteriaScores Json?
+  total        Float
+  comment      String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([organizerId, teamId, stageId])
+  @@index([organizerId])
+  @@index([teamId])
+  @@index([stageId])
+}
+
+model Winner {
+  id          String   @id @default(uuid())
+  hackathonId String
+  hackathon   Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  teamId      String
+  team        Team     @relation(fields: [teamId], references: [id])
+  awardTitle  String
+  prizeId     String?
+  prize       Prize?   @relation(fields: [prizeId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([hackathonId, teamId, awardTitle])
+  @@index([hackathonId])
+}
+
+model Rule {
+  id          String   @id @default(uuid())
+  hackathonId String
+  hackathon   Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  order       Int
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([hackathonId])
+}
+
+model Prize {
+  id          String   @id @default(uuid())
+  hackathonId String
+  hackathon   Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  position    Int
+  title       String?
+  amount      Decimal          @db.Decimal(10, 2)
+  description String?
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  winners     Winner[]
+
+  @@index([hackathonId])
+}
+
+model ProblemStatement {
+  id           String     @id @default(uuid())
+  hackathonId  String
+  hackathon    Hackathon  @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  title        String
+  description  String
+  difficulty   Difficulty @default(MEDIUM)
+  technologies String[]
+  resources    String[]
+  isActive     Boolean    @default(true)
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([hackathonId])
+}
+
+model Announcement {
+  id          String    @id @default(uuid())
+  hackathonId String
+  hackathon   Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  title       String
+  content     String
+  isPinned    Boolean   @default(false)
+  isActive    Boolean   @default(true)
+  scheduledAt DateTime?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([hackathonId])
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  hackathonId String?
+  hackathon Hackathon? @relation(fields: [hackathonId], references: [id])
+  action    String
+  entity    String
+  entityId  String
+  metadata  Json?
+  ipAddress String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([hackathonId])
+  @@index([entity, entityId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  title     String
+  message   String
+  data      Json?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+model WebhookEvent {
+  id              String   @id @default(uuid())
+  razorpayEventId String   @unique
+  eventName       String
+  paymentId       String?
+  orderId         String?
+  processedAt     DateTime @default(now())
+
+  @@index([eventName])
+  @@index([processedAt])
+}
+
+model Setting {
+  id    String @id @default(uuid())
+  key   String @unique
+  value String
+}
