@@ -6,6 +6,11 @@ import {
   Menu,
   X,
   LogOut,
+  BarChart3,
+  FileText,
+  Award,
+  Megaphone,
+  Trophy,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/utils/cn';

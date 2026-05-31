@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Layers, Users2, BarChart3, Zap } from 'lucide-react';
+import { Layers, BarChart3, Zap } from 'lucide-react';
 
 const features = [
   {
