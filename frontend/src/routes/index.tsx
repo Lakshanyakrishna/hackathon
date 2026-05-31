@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
-import { ProtectedRoute, OrganizerRoute, AdminRoute } from './protected-route';
+import { ProtectedRoute, AdminRoute } from './protected-route';
 import { PageLoading } from '@/components/shared/loading';
 
 function LazyLoad(Component: React.LazyExoticComponent<React.ComponentType<any>>) {
@@ -89,7 +89,7 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       {
-        element: <OrganizerRoute />,
+        element: <AdminRoute />,
         children: [
           {
             element: <OrganizerLayout />,

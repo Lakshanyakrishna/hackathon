@@ -441,12 +441,6 @@ export class PaymentsService {
 
     if (userRole === 'PARTICIPANT') {
       where.userId = userId;
-    } else if (userRole === 'ORGANIZER') {
-      const hackathons = await this.prisma.hackathon.findMany({
-        where: { organizerId: userId },
-        select: { id: true },
-      });
-      where.hackathonId = { in: hackathons.map((h) => h.id) };
     }
 
     const data = await this.prisma.payment.findMany({

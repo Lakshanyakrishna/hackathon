@@ -25,7 +25,7 @@ export function CurrentStageCard({ stage, team, submissions }: CurrentStageCardP
           <h3 className="font-semibold text-text-primary">No Active Stage</h3>
           <p className="mt-1 text-sm text-text-muted max-w-xs">
             {team && team.status === 'LOCKED'
-              ? 'Your team is locked. Waiting for the organizer to promote you to a stage.'
+              ? 'Your team is locked. Waiting for the admin to promote you to a stage.'
               : 'Join or create a team to start participating in stages.'}
           </p>
         </div>

@@ -35,7 +35,7 @@ export class RulesController {
   }
 
   @Post()
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Create a rule (organizer/admin)' })
   create(
     @Param('hackathonId') hackathonId: string,
@@ -46,7 +46,7 @@ export class RulesController {
   }
 
   @Patch(':id')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Update a rule (organizer/admin)' })
   update(
     @Param('hackathonId') hackathonId: string,
@@ -58,7 +58,7 @@ export class RulesController {
   }
 
   @Delete(':id')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Delete a rule (organizer/admin)' })
   remove(
     @Param('hackathonId') hackathonId: string,

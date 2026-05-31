@@ -14,7 +14,8 @@ export type NextActionType =
   | 'SUBMIT_STAGE'
   | 'AWAITING_REVIEW'
   | 'START_NEXT_STAGE'
-  | 'COMPLETED';
+  | 'COMPLETED'
+  | 'CREATE_HACKATHON';
 
 export interface NextAction {
   type: NextActionType;

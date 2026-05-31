@@ -20,7 +20,50 @@ import { buildStageTimeline } from '@/utils/dashboard-utils';
 import { useAuthStore } from '@/stores/auth-store';
 import type { DashboardData } from '@/types/dashboard';
 
-function DashboardContent(data: DashboardData) {
+function AdminDashboard() {
+  const user = useAuthStore((s) => s.user);
+  const navigate = useNavigate();
+
+  return (
+    <div className="space-y-6">
+      <WelcomeHeader
+        name={user?.name ?? 'Admin'}
+        hackathon={null}
+        team={null}
+        registration={null}
+      />
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-6">
+          <NextActionCard action={{
+            type: 'CREATE_HACKATHON',
+            label: 'Create Hackathon',
+            description: 'Set up a new hackathon with prizes, rules, and stages',
+            href: '/organize/new',
+          }} />
+
+          <EmptyState
+            title="Welcome to Admin Dashboard"
+            description="Create a hackathon to get started. Participants will see everything you add — prizes, rules, problem statements, and stages."
+            action={{
+              label: 'Create Hackathon',
+              onClick: () => navigate('/organize/new'),
+            }}
+          />
+        </div>
+
+        <div className="space-y-6">
+          <NotificationsPanel
+            notifications={[]}
+            pendingInvitations={0}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ParticipantDashboard(data: DashboardData) {
   const user = useAuthStore((s) => s.user);
   const {
     registration,
@@ -113,6 +156,10 @@ export function DashboardPage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
 
+  if (user?.role === 'SUPER_ADMIN') {
+    return <AdminDashboard />;
+  }
+
   if (data.status === 'loading') {
     return <DashboardSkeleton />;
   }
@@ -156,5 +203,5 @@ export function DashboardPage() {
     );
   }
 
-  return <DashboardContent {...data} />;
+  return <ParticipantDashboard {...data} />;
 }

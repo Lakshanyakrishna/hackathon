@@ -31,7 +31,7 @@ export class SubmissionsController {
   constructor(private readonly submissionsService: SubmissionsService) {}
 
   @Post()
-  @Roles('PARTICIPANT', 'ORGANIZER', 'SUPER_ADMIN')
+  @Roles('PARTICIPANT', 'SUPER_ADMIN')
   @ApiOperation({ summary: 'Create a new submission draft' })
   create(
     @Body() dto: CreateSubmissionDto,
@@ -86,7 +86,7 @@ export class SubmissionsController {
   }
 
   @Put(':id')
-  @Roles('PARTICIPANT', 'ORGANIZER', 'SUPER_ADMIN')
+  @Roles('PARTICIPANT', 'SUPER_ADMIN')
   @ApiOperation({ summary: 'Update a draft submission' })
   update(
     @Param('id') id: string,
@@ -97,7 +97,7 @@ export class SubmissionsController {
   }
 
   @Post(':id/submit')
-  @Roles('PARTICIPANT', 'ORGANIZER', 'SUPER_ADMIN')
+  @Roles('PARTICIPANT', 'SUPER_ADMIN')
   @ApiOperation({ summary: 'Submit a draft submission for review' })
   submit(
     @Param('id') id: string,
@@ -107,7 +107,7 @@ export class SubmissionsController {
   }
 
   @Post(':id/resubmit')
-  @Roles('PARTICIPANT', 'ORGANIZER', 'SUPER_ADMIN')
+  @Roles('PARTICIPANT', 'SUPER_ADMIN')
   @ApiOperation({ summary: 'Create a new version from a submitted submission' })
   resubmit(
     @Param('id') id: string,
@@ -117,7 +117,7 @@ export class SubmissionsController {
   }
 
   @Patch(':id/lock')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Lock a submission (organizer only)' })
   lock(
     @Param('id') id: string,
@@ -127,7 +127,7 @@ export class SubmissionsController {
   }
 
   @Patch(':id/reopen')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Reopen a submission for editing (organizer only)' })
   reopen(
     @Param('id') id: string,

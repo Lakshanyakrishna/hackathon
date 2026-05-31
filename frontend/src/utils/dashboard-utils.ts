@@ -25,7 +25,7 @@ export function deriveNextAction(
   }
 
   if (registration.status === 'PENDING_APPROVAL') {
-    return { type: 'AWAITING_APPROVAL', label: 'Awaiting Approval', description: 'Your registration is under review by the organizer' };
+    return { type: 'AWAITING_APPROVAL', label: 'Awaiting Approval', description: 'Your registration is under review by the admin' };
   }
 
   if (registration.status === 'REJECTED' || registration.status === 'CANCELLED') {
@@ -39,7 +39,7 @@ export function deriveNextAction(
 
     if (team.status === 'ACTIVE') {
       if (!currentStage && stages.length > 0) {
-        return { type: 'AWAITING_REVIEW', label: 'Awaiting Promotion', description: 'Waiting for the organizer to promote your team to the first stage' };
+        return { type: 'AWAITING_REVIEW', label: 'Awaiting Promotion', description: 'Waiting for the admin to promote your team to the first stage' };
       }
 
       if (currentStage) {

@@ -13,7 +13,7 @@ export function RulesTab({ rules }: RulesTabProps) {
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <Scale className="h-12 w-12 text-text-muted mb-3" />
         <h3 className="font-semibold text-text-primary">No Rules Published</h3>
-        <p className="mt-1 text-sm text-text-muted">Rules will be added by the organizer.</p>
+        <p className="mt-1 text-sm text-text-muted">Rules will be added by the admin.</p>
       </div>
     );
   }

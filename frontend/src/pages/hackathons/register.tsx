@@ -576,7 +576,7 @@ export function RegisterPage() {
           {existingRegistration?.status === 'PENDING_PAYMENT'
             ? 'We are waiting for your payment to be confirmed. This may take a moment.'
             : hackathon.approvalRequired
-              ? 'Your registration is pending organizer approval. You will be notified once approved.'
+              ? 'Your registration is pending approval. You will be notified once approved.'
               : hasFee
                 ? 'Your payment is being processed. Your spot will be confirmed shortly.'
                 : 'You are registered! Head to your dashboard to get started.'}
@@ -600,7 +600,7 @@ export function RegisterPage() {
               <li className="flex items-center gap-2">• Complete your payment to secure your spot</li>
             )}
             {hackathon.approvalRequired && (
-              <li className="flex items-center gap-2">• Wait for organizer approval</li>
+              <li className="flex items-center gap-2">• Wait for admin approval</li>
             )}
             {hackathon.maxTeamSize > 1 && (
               <li className="flex items-center gap-2">• Invite team members to join your team</li>

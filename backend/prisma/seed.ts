@@ -29,13 +29,7 @@ const SEED_USERS: Array<{
     password: 'Admin123!',
     role: UserRole.SUPER_ADMIN,
   },
-  {
-    email: 'organizer@test.com',
-    username: 'organizer',
-    name: 'Olivia Organizer',
-    password: 'Organizer123!',
-    role: UserRole.ORGANIZER,
-  },
+
   {
     email: 'participant@test.com',
     username: 'participant',

@@ -197,13 +197,7 @@ export class ScoresService {
     if (filters.teamId) where.teamId = filters.teamId;
     if (filters.stageId) where.stageId = filters.stageId;
 
-    if (userRole === 'ORGANIZER') {
-      const hackathons = await this.prisma.hackathon.findMany({
-        where: { organizerId: userId },
-        select: { id: true },
-      });
-      where.hackathonId = { in: hackathons.map((h) => h.id) };
-    } else if (userRole === 'PARTICIPANT') {
+    if (userRole === 'PARTICIPANT') {
       const teams = await this.prisma.teamMember.findMany({
         where: { userId },
         select: { teamId: true },
@@ -265,18 +259,6 @@ export class ScoresService {
     });
 
     if (!stage) throw new NotFoundException('Stage not found');
-
-    if (userRole === 'ORGANIZER') {
-      const hackathon = await this.prisma.hackathon.findUnique({
-        where: { id: stage.hackathonId },
-      });
-      if (hackathon?.organizerId !== userId) {
-        const user = await this.prisma.user.findUnique({ where: { id: userId } });
-        if (user?.role !== 'SUPER_ADMIN') {
-          throw new ForbiddenException('Not authorized to view scores for this stage');
-        }
-      }
-    }
 
     return this.prisma.score.findMany({
       where: { stageId },

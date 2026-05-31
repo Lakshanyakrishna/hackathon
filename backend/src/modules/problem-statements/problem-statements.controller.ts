@@ -35,7 +35,7 @@ export class ProblemStatementsController {
   }
 
   @Post()
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Create a problem statement (organizer/admin)' })
   create(
     @Param('hackathonId') hackathonId: string,
@@ -46,7 +46,7 @@ export class ProblemStatementsController {
   }
 
   @Patch(':id')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Update a problem statement (organizer/admin)' })
   update(
     @Param('hackathonId') hackathonId: string,
@@ -58,7 +58,7 @@ export class ProblemStatementsController {
   }
 
   @Delete(':id')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Delete a problem statement (organizer/admin)' })
   remove(
     @Param('hackathonId') hackathonId: string,

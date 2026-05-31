@@ -35,7 +35,7 @@ export class AnnouncementsController {
   }
 
   @Post()
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Create an announcement (organizer/admin)' })
   create(
     @Param('hackathonId') hackathonId: string,
@@ -46,7 +46,7 @@ export class AnnouncementsController {
   }
 
   @Patch(':id')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Update an announcement (organizer/admin)' })
   update(
     @Param('hackathonId') hackathonId: string,
@@ -58,7 +58,7 @@ export class AnnouncementsController {
   }
 
   @Delete(':id')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Delete an announcement (organizer/admin)' })
   remove(
     @Param('hackathonId') hackathonId: string,

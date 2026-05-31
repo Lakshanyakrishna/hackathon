@@ -80,7 +80,7 @@ function RegistrationBanner({
     return (
       <div className="flex items-center gap-2 rounded-lg bg-warning/10 p-3 text-sm text-warning">
         <Clock className="h-4 w-4 shrink-0" />
-        Your registration is pending organizer approval.
+        Your registration is pending approval.
       </div>
     );
   }

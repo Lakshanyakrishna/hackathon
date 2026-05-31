@@ -55,14 +55,6 @@ export class RegistrationsController {
       return this.registrationsService.findAll(pagination, { userId });
     }
 
-    if (userRole === 'ORGANIZER' && !hackathonId) {
-      return this.registrationsService.findAllByOrganizer(pagination, userId);
-    }
-
-    if (userRole === 'ORGANIZER' && hackathonId) {
-      return this.registrationsService.findAllByOwnedHackathon(pagination, hackathonId, userId);
-    }
-
     return this.registrationsService.findAll(pagination, {
       hackathonId,
       status,

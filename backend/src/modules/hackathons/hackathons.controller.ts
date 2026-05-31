@@ -63,9 +63,9 @@ export class HackathonsController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ORGANIZER, UserRole.SUPER_ADMIN)
+  @Roles(UserRole.SUPER_ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create a new hackathon (organizer/admin)' })
+  @ApiOperation({ summary: 'Create a new hackathon (admin)' })
   async create(
     @Body() dto: CreateHackathonDto,
     @CurrentUser('id') userId: string,

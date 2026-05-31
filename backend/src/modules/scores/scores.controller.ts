@@ -30,7 +30,7 @@ export class ScoresController {
   constructor(private readonly scoresService: ScoresService) {}
 
   @Post()
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Create a score for a team (organizer/admin)' })
   create(
     @Body() dto: CreateScoreDto,
@@ -40,7 +40,7 @@ export class ScoresController {
   }
 
   @Put(':id')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Update a score (organizer/admin)' })
   update(
     @Param('id') id: string,

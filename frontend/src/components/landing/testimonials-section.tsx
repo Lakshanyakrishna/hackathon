@@ -36,7 +36,7 @@ export function TestimonialsSection() {
           Loved by the community
         </h2>
         <p className="mt-3 text-lg text-text-muted">
-          Hear from participants and organizers
+          Hear from participants and admins
         </p>
       </motion.div>
 

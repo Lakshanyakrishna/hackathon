@@ -2,7 +2,6 @@ export const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
 
 export const ROLES = {
   SUPER_ADMIN: 'SUPER_ADMIN',
-  ORGANIZER: 'ORGANIZER',
   PARTICIPANT: 'PARTICIPANT',
 } as const;
 

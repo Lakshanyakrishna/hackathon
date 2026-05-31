@@ -31,7 +31,7 @@ export class StagesController {
   constructor(private readonly stagesService: StagesService) {}
 
   @Post()
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Create a new stage (organizer/admin)' })
   create(
     @Param('hackathonId') hackathonId: string,
@@ -57,7 +57,7 @@ export class StagesController {
   }
 
   @Patch(':id')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Update a stage (organizer/admin)' })
   update(
     @Param('hackathonId') hackathonId: string,
@@ -69,7 +69,7 @@ export class StagesController {
   }
 
   @Delete(':id')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Delete a stage (organizer/admin)' })
   remove(
     @Param('hackathonId') hackathonId: string,
@@ -80,7 +80,7 @@ export class StagesController {
   }
 
   @Put('reorder')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Reorder stages (organizer/admin)' })
   reorder(
     @Param('hackathonId') hackathonId: string,

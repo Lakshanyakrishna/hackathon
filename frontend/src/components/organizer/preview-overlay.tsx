@@ -227,7 +227,7 @@ function RegistrationPreview({ hackathon, persona }: { hackathon: Hackathon; per
         </div>
         <div className="mt-4 flex items-center gap-2 text-sm text-text-muted">
           <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
-          {hackathon.approvalRequired ? 'Requires organizer approval' : 'Auto-approved'}
+          {hackathon.approvalRequired ? 'Requires admin approval' : 'Auto-approved'}
         </div>
       </div>
 

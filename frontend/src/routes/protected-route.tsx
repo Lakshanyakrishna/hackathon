@@ -23,25 +23,6 @@ export function ProtectedRoute() {
   return <Outlet />;
 }
 
-export function OrganizerRoute() {
-  const { user, isAuthenticated, isLoading } = useAuthStore();
-
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-bg-base">
-        <Skeleton className="h-12 w-12 rounded-full" />
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) return <Navigate to="/auth/login" replace />;
-  if (user?.role !== 'ORGANIZER' && user?.role !== 'SUPER_ADMIN') {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  return <Outlet />;
-}
-
 export function AdminRoute() {
   const { user, isAuthenticated, isLoading } = useAuthStore();
 

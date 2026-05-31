@@ -14,7 +14,7 @@ const faqs = [
   },
   {
     question: 'How are winners selected?',
-    answer: 'Winners are selected based on their performance across all stages. Each stage has configurable evaluation criteria and promotion rules. The organizer reviews submissions and scores teams.',
+    answer: 'Winners are selected based on their performance across all stages. Each stage has configurable evaluation criteria and promotion rules. The admin reviews submissions and scores teams.',
   },
   {
     question: 'Is there a registration fee?',

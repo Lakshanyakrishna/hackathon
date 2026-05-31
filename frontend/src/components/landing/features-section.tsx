@@ -41,7 +41,7 @@ export function FeaturesSection() {
           Everything you need
         </h2>
         <p className="mt-3 text-lg text-text-muted">
-          A complete platform for organizers and participants
+          A complete platform for admins and participants
         </p>
       </motion.div>
 

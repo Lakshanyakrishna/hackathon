@@ -26,7 +26,7 @@ export class PromotionsController {
   constructor(private readonly promotionsService: PromotionsService) {}
 
   @Post('hackathons/:hackathonId/stages/:stageId/promote')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Evaluate promotion rule and promote teams to next stage' })
   promote(
     @Param('hackathonId') hackathonId: string,

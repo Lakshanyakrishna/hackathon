@@ -35,7 +35,7 @@ export class PrizesController {
   }
 
   @Post()
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Create a prize (organizer/admin)' })
   create(
     @Param('hackathonId') hackathonId: string,
@@ -46,7 +46,7 @@ export class PrizesController {
   }
 
   @Patch(':id')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Update a prize (organizer/admin)' })
   update(
     @Param('hackathonId') hackathonId: string,
@@ -58,7 +58,7 @@ export class PrizesController {
   }
 
   @Delete(':id')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Delete a prize (organizer/admin)' })
   remove(
     @Param('hackathonId') hackathonId: string,

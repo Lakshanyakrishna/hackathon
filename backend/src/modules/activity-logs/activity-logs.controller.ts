@@ -16,7 +16,7 @@ export class ActivityLogsController {
 
   @Get('hackathon/:hackathonId')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ORGANIZER)
+  @Roles(UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get activity logs for a hackathon' })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })

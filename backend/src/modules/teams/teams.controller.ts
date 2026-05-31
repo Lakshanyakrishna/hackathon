@@ -108,9 +108,9 @@ export class TeamsController {
 
   @Patch(':id/lock')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ORGANIZER)
+  @Roles(UserRole.SUPER_ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Toggle team lock (organizer/admin)' })
+  @ApiOperation({ summary: 'Toggle team lock (admin)' })
   async lock(
     @Param('id') id: string,
     @CurrentUser('id') userId: string,
@@ -120,9 +120,9 @@ export class TeamsController {
 
   @Patch(':id/disqualify')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ORGANIZER)
+  @Roles(UserRole.SUPER_ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Toggle team disqualification (organizer/admin)' })
+  @ApiOperation({ summary: 'Toggle team disqualification (admin)' })
   async disqualify(
     @Param('id') id: string,
     @CurrentUser('id') userId: string,

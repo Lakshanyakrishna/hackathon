@@ -213,12 +213,6 @@ export class SubmissionsService {
         select: { teamId: true },
       });
       where.teamId = { in: teamIds.map((t) => t.teamId) };
-    } else if (userRole === 'ORGANIZER') {
-      const hackathons = await this.prisma.hackathon.findMany({
-        where: { organizerId: userId },
-        select: { id: true },
-      });
-      where.hackathonId = { in: hackathons.map((h) => h.id) };
     }
 
     return this.prisma.submission.findMany({
@@ -266,13 +260,6 @@ export class SubmissionsService {
     if (userRole === 'PARTICIPANT') {
       const isMember = submission.team?.members?.some((m: any) => m.userId === userId);
       if (!isMember) throw new NotFoundException('Submission not found');
-      return;
-    }
-
-    if (userRole === 'ORGANIZER') {
-      if (submission.hackathon.organizerId !== userId) {
-        throw new NotFoundException('Submission not found');
-      }
       return;
     }
 

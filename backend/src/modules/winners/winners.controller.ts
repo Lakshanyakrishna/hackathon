@@ -27,7 +27,7 @@ export class WinnersController {
   constructor(private readonly winnersService: WinnersService) {}
 
   @Post()
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Declare a winner with award title and optional prize' })
   create(
     @Param('hackathonId') hackathonId: string,
@@ -44,7 +44,7 @@ export class WinnersController {
   }
 
   @Delete(':id')
-  @Roles('ORGANIZER', 'SUPER_ADMIN')
+  @Roles('SUPER_ADMIN')
   @ApiOperation({ summary: 'Remove a winner' })
   remove(
     @Param('hackathonId') hackathonId: string,

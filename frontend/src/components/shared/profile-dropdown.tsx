@@ -53,14 +53,14 @@ export function ProfileDropdown() {
               <User className="h-4 w-4" />
               Profile
             </Link>
-            {user?.role === 'ORGANIZER' && (
+            {user?.role === 'SUPER_ADMIN' && (
               <Link
                 to="/organize"
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-colors"
               >
                 <Settings className="h-4 w-4" />
-                Organizer Dashboard
+                Admin Dashboard
               </Link>
             )}
           </div>
