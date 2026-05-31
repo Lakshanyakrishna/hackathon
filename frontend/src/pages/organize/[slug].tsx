@@ -7,7 +7,7 @@ import {
   Plus, Pencil, Trash2, Save, Eye, ExternalLink,
   Loader2, CheckCircle2, AlertTriangle, Users,
   Calendar, DollarSign, Clock,
-  Trophy, ChevronDown, ChevronUp, Globe, Lock,
+  Trophy, Globe, Lock,
 } from 'lucide-react';
 import { hackathonService } from '@/services/hackathons';
 import { analyticsService } from '@/services/analytics';
@@ -28,8 +28,6 @@ import { useUIStore } from '@/stores/ui-store';
 import { StagePipeline } from '@/components/organizer/stage-pipeline';
 import { InlineEditor } from '@/components/organizer/inline-editor';
 import { PreviewOverlay } from '@/components/organizer/preview-overlay';
-import { RequirementsBuilder } from '@/components/organizer/requirements-builder';
-import { EvaluationCriteriaBuilder } from '@/components/organizer/evaluation-criteria-builder';
 import type {
   Hackathon, StageConfig, Rule, Prize,
   ProblemStatement, Announcement,
@@ -323,10 +321,11 @@ function StagesSection({ hackathon }: { hackathon: Hackathon }) {
 
     const data: Record<string, unknown> = {
       name: form.name, description: form.description,
-      startDate: form.startDate ? new Date(form.startDate).toISOString() : null,
-      endDate: form.endDate ? new Date(form.endDate).toISOString() : null,
+      order: editingStage ? editingStage.order : sorted.length + 1,
+      startDate: form.startDate || null,
+      endDate: form.endDate || null,
       isActive: form.isActive,
-      requirements: form.requirements, evaluationCriteria: form.evaluationCriteria, promotionRule,
+      promotionRule,
     };
     if (editingStage) updateMut.mutate({ id: editingStage.id, data });
     else createMut.mutate(data);
@@ -356,25 +355,9 @@ function StagesSection({ hackathon }: { hackathon: Hackathon }) {
           </div>
           <Textarea label="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Stage description..." />
           <div className="grid gap-4 sm:grid-cols-2">
-            <Input label="Start" type="datetime-local" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} />
-            <Input label="End" type="datetime-local" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} />
+            <Input label="Start Date" type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} />
+            <Input label="End Date" type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} />
           </div>
-          <div className="rounded-lg border border-border p-4">
-            <h4 className="text-sm font-medium text-text-primary mb-3">Submission Requirements</h4>
-            <RequirementsBuilder
-              value={form.requirements}
-              onChange={(reqs) => setForm({ ...form, requirements: reqs })}
-            />
-          </div>
-
-          <div className="rounded-lg border border-border p-4">
-            <h4 className="text-sm font-medium text-text-primary mb-3">Evaluation Criteria</h4>
-            <EvaluationCriteriaBuilder
-              value={form.evaluationCriteria}
-              onChange={(crits) => setForm({ ...form, evaluationCriteria: crits })}
-            />
-          </div>
-
           <div className="grid gap-4 sm:grid-cols-2">
             <Select label="Promotion Rule" value={form.promotionType} onChange={(e) => setForm({ ...form, promotionType: e.target.value })} options={[
               { label: 'Manual Selection', value: 'MANUAL_SELECTION' },
@@ -403,10 +386,6 @@ function StagesSection({ hackathon }: { hackathon: Hackathon }) {
 function RulesSection({ hackathon }: { hackathon: Hackathon }) {
   const queryClient = useQueryClient();
   const addToast = useUIStore((s) => s.addToast);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<Rule | null>(null);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
 
   const { data: rules, isLoading } = useQuery({
     queryKey: ['hackathon-rules', hackathon.id],
@@ -417,7 +396,7 @@ function RulesSection({ hackathon }: { hackathon: Hackathon }) {
 
   const createMut = useMutation({
     mutationFn: (d: Record<string, unknown>) => hackathonService.rules.create(hackathon.id, d),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['hackathon-rules'] }); setModalOpen(false); reset(); addToast({ type: 'success', title: 'Rule created' }); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['hackathon-rules'] }); addToast({ type: 'success', title: 'Rule created' }); },
     onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: e.message }),
   });
   const updateMut = useMutation({
@@ -430,22 +409,9 @@ function RulesSection({ hackathon }: { hackathon: Hackathon }) {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['hackathon-rules'] }); addToast({ type: 'success', title: 'Rule deleted' }); },
     onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: e.message }),
   });
-  const reorderMut = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) => hackathonService.rules.update(hackathon.id, id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hackathon-rules'] }),
-    onError: (e: Error) => addToast({ type: 'error', title: 'Reorder failed', message: e.message }),
-  });
 
-  const reset = () => { setTitle(''); setDescription(''); setEditing(null); };
-  const openCreate = () => { reset(); setModalOpen(true); };
-  const handleSave = () => {
-    const data = { title, description, order: editing?.order ?? sorted.length + 1 };
-    if (editing) updateMut.mutate({ id: editing.id, data });
-    else createMut.mutate(data);
-  };
-
-  const handleInlineUpdate = (ruleId: string, data: Record<string, unknown>) => {
-    updateMut.mutate({ id: ruleId, data });
+  const addRule = () => {
+    createMut.mutate({ title: '', description: '', order: sorted.length + 1 });
   };
 
   if (isLoading) return <Skeleton className="h-64 rounded-xl" />;
@@ -454,11 +420,11 @@ function RulesSection({ hackathon }: { hackathon: Hackathon }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-text-muted">{sorted.length} rule{sorted.length !== 1 && 's'}</p>
-        <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-pink hover:opacity-90" onClick={openCreate}><Plus className="h-4 w-4" /> Add Rule</Button>
+        <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-pink hover:opacity-90" onClick={addRule} loading={createMut.isPending}><Plus className="h-4 w-4" /> Add Rule</Button>
       </div>
 
       {sorted.length === 0 ? (
-        <EmptyState title="No rules yet" description="Add rules so participants know the guidelines." action={{ label: 'Add Rule', onClick: openCreate }} />
+        <EmptyState title="No rules yet" description="Add rules so participants know the guidelines." action={{ label: 'Add Rule', onClick: addRule }} />
       ) : (
         <div className="space-y-2">
           {sorted.map((rule, i) => (
@@ -468,25 +434,19 @@ function RulesSection({ hackathon }: { hackathon: Hackathon }) {
                 <div className="flex-1 min-w-0 space-y-1.5">
                   <InlineEditor
                     value={rule.title}
-                    onSave={(v) => handleInlineUpdate(rule.id, { title: v })}
+                    onSave={(v) => updateMut.mutate({ id: rule.id, data: { title: v } })}
                     placeholder="Rule title..."
                     className="w-full"
                   />
                   <InlineEditor
                     value={rule.description ?? ''}
-                    onSave={(v) => handleInlineUpdate(rule.id, { description: v })}
+                    onSave={(v) => updateMut.mutate({ id: rule.id, data: { description: v } })}
                     placeholder="Rule description..."
                     multiline
                     className="w-full"
                   />
                 </div>
                 <div className="flex gap-1 shrink-0">
-                  <Button variant="ghost" size="sm" onClick={() => {
-                    if (i > 0) { const a = [...sorted]; [a[i - 1], a[i]] = [a[i], a[i - 1]]; a.forEach((r, idx) => reorderMut.mutate({ id: r.id, data: { order: idx + 1 } })); }
-                  }} aria-label="Move up" disabled={i === 0}><ChevronUp className="h-4 w-4" /></Button>
-                  <Button variant="ghost" size="sm" onClick={() => {
-                    if (i < sorted.length - 1) { const a = [...sorted]; [a[i], a[i + 1]] = [a[i + 1], a[i]]; a.forEach((r, idx) => reorderMut.mutate({ id: r.id, data: { order: idx + 1 } })); }
-                  }} aria-label="Move down" disabled={i === sorted.length - 1}><ChevronDown className="h-4 w-4" /></Button>
                   <Button variant="ghost" size="sm" aria-label="Delete" className="text-error hover:text-error" onClick={() => { if (confirm('Delete this rule?')) deleteMut.mutate(rule.id); }}><Trash2 className="h-4 w-4" /></Button>
                 </div>
               </div>
@@ -494,19 +454,6 @@ function RulesSection({ hackathon }: { hackathon: Hackathon }) {
           ))}
         </div>
       )}
-
-      <Modal open={modalOpen} onClose={() => { setModalOpen(false); reset(); }} title={editing ? 'Edit Rule' : 'Add Rule'}>
-        <div className="space-y-4">
-          <Input label="Title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Team Formation" />
-          <Textarea label="Description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Rule details..." />
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => { setModalOpen(false); reset(); }}>Cancel</Button>
-            <Button className="bg-gradient-to-r from-accent to-pink hover:opacity-90" onClick={handleSave} disabled={!title.trim() || createMut.isPending || updateMut.isPending}>
-              {editing ? 'Update' : 'Create'}
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 }
