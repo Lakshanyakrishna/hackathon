@@ -11,6 +11,8 @@ import {
   Award,
   Megaphone,
   Trophy,
+  ArrowLeft,
+  Eye,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/utils/cn';

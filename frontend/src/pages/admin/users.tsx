@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Search, Mail, Shield, Trash2, RefreshCw, Loader2, AlertTriangle } from 'lucide-react';
+import { Search, Mail, Shield, Trash2, Loader2 } from 'lucide-react';
 import { userService } from '@/services/users';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
