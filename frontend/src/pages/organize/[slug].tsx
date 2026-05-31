@@ -227,7 +227,7 @@ function OverviewTab({ hackathon }: { hackathon: Hackathon }) {
                 <Button key={action.label} variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => {
                   if (action.href.startsWith('?')) {
                     const t = action.href.replace('?tab=', '');
-                    t === 'overview' ? setSearchParams({}, { replace: true }) : setSearchParams({ tab: t }, { replace: true });
+                    setTab(t);
                   } else navigate(action.href);
                 }}>
                   <action.icon className="h-4 w-4" />
@@ -874,8 +874,8 @@ function SettingsSection({ hackathon, onUpdate }: { hackathon: Hackathon; onUpda
   });
 
   const setFormPersist = useCallback((updater: typeof form | ((prev: typeof form) => typeof form)) => {
-    setForm((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : updater;
+    setForm((prev: typeof form) => {
+      const next = typeof updater === 'function' ? (updater as (prev: typeof form) => typeof form)(prev) : updater;
       try { sessionStorage.setItem(persistKey, JSON.stringify(next)); } catch { /* noop */ }
       return next;
     });

@@ -17,6 +17,8 @@ import { cn } from '@/utils/cn';
 import { unwrapData } from '@/utils/unwrap-data';
 import type { Hackathon } from '@/types/hackathon';
 
+import { Registration } from '@/types/registration';
+
 export function AnalyticsPage() {
   const { slug } = useParams<{ slug: string }>();
 
@@ -44,7 +46,7 @@ export function AnalyticsPage() {
     refetch: refetchReg,
   } = useQuery({
     queryKey: ['registrations', hackathon?.id],
-    queryFn: () => registrationService.list({ hackathonId: hackathon!.id }).then((r) => unwrapData<Array<Record<string, unknown>>>(r)),
+    queryFn: () => registrationService.list({ hackathonId: hackathon!.id }).then((r) => unwrapData<Registration[]>(r)),
     enabled: !!hackathon?.id,
   });
 
@@ -78,9 +80,9 @@ export function AnalyticsPage() {
   }
 
   const totalReg = registrations?.length ?? 0;
-  const paidReg = registrations?.filter((r: Record<string, unknown>) => (r.payment as Record<string, unknown>)?.status === 'SUCCESS').length ?? 0;
-  const approvedReg = registrations?.filter((r: Record<string, unknown>) => r.status === 'APPROVED').length ?? 0;
-  const pendingReg = registrations?.filter((r: Record<string, unknown>) => r.status === 'PENDING_APPROVAL' || r.status === 'PENDING_PAYMENT').length ?? 0;
+  const paidReg = registrations?.filter((r) => r.payment?.status === 'SUCCESS').length ?? 0;
+  const approvedReg = registrations?.filter((r) => r.status === 'APPROVED').length ?? 0;
+  const pendingReg = registrations?.filter((r) => r.status === 'PENDING_APPROVAL' || r.status === 'PENDING_PAYMENT').length ?? 0;
 
   // Build 5 funnels
   const funnels = [

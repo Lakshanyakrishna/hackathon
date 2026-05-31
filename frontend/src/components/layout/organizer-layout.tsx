@@ -1,19 +1,11 @@
 import { Outlet, Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
-  Settings,
-  FileText,
-  Trophy,
-  Award,
-  BarChart3,
   Users,
-  Megaphone,
   Bell,
   Menu,
   X,
-  Eye,
   LogOut,
-  ArrowLeft,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/utils/cn';

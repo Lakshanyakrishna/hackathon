@@ -133,8 +133,8 @@ function LandingPreview({ hackathon, stages, persona }: { hackathon: Hackathon; 
   const now = new Date();
   const startDate = new Date(hackathon.startDate);
   const endDate = new Date(hackathon.endDate);
-  const regEnd = new Date(hackathon.registrationEndDate);
-  const isOpen = now >= new Date(hackathon.registrationStartDate) && now <= regEnd;
+  const regEnd = new Date(hackathon.registrationDeadline);
+  const isOpen = now <= regEnd;
 
   return (
     <div className="space-y-6 sm:space-y-8">

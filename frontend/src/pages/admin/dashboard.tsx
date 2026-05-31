@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Users, LayoutList, Plus, Activity, ExternalLink, Calendar, BarChart3 } from 'lucide-react';
 import { hackathonService } from '@/services/hackathons';
 import { useAuthStore } from '@/stores/auth-store';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -24,8 +24,8 @@ export function AdminDashboardPage() {
   });
 
   const list = hackathons ?? [];
-  const totalParticipants = list.reduce((s, h) => s + (h as any)._count?.registrations ?? 0, 0);
-  const totalTeams = list.reduce((s, h) => s + (h as any)._count?.teams ?? 0, 0);
+  const totalParticipants = list.reduce((s, h) => s + ((h as any)._count?.registrations || 0), 0);
+  const totalTeams = list.reduce((s, h) => s + ((h as any)._count?.teams || 0), 0);
 
   return (
     <div className="space-y-6">

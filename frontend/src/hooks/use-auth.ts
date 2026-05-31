@@ -14,7 +14,7 @@ export function useAuth() {
         if (token) {
           useAuthStore.getState().setAccessToken(token);
           const res = await authService.me();
-          login(res.data, token, null);
+          login(res.data, token, '');
         }
       } catch {
         logout();
