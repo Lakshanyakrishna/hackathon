@@ -121,7 +121,7 @@ export function RegistrationsPage() {
           { label: 'Rejected', count: rejected.length, color: 'text-error' },
         ].map((stat) => (
           <Card key={stat.label} className="p-4 text-center">
-            <p className={cn('text-2xl font-bold', stat.color)}>{stat.count}</p>
+            <p className={cn("text-2xl font-bold", stat.color)}>{stat.count}</p>
             <p className="text-xs text-text-muted mt-0.5">{stat.label}</p>
           </Card>
         ))}
@@ -202,7 +202,7 @@ function RegistrationsList({
                   Registration: <span className="font-mono text-xs">{reg.id.slice(0, 8)}</span>
                 </p>
                 <div className="mt-1 flex flex-wrap gap-2 text-xs text-text-muted">
-                  <Badge variant={statusColors[reg.status] ?? 'default'} size="sm">{reg.status}</Badge>
+                  <Badge variant={statusColors[reg.status] as any} size="sm">{reg.status}</Badge>
                   {reg.team?.name && <span>Team: {reg.team.name}</span>}
                   <span>{new Date(reg.registeredAt).toLocaleDateString()}</span>
                   {reg.payment?.status && <span>Payment: {reg.payment.status}</span>}

@@ -81,7 +81,7 @@ export function OrganizerWorkspacePage() {
         <div>
           <h1 className="text-2xl font-bold text-text-primary">{hackathon.title}</h1>
           <p className="text-sm text-text-muted mt-0.5 flex items-center gap-2">
-            <Badge variant={hackathon.status === 'DRAFT' ? 'warning' : hackathon.status === 'PUBLISHED' ? 'success' : hackathon.status === 'ONGOING' ? 'accent' : 'default'} size="sm">
+            <Badge variant={hackathon.status === 'DRAFT' ? 'warning' : hackathon.status === 'PUBLISHED' ? 'success' : hackathon.status === 'ONGOING' ? 'accent' : 'neutral'} size="sm">
               {hackathon.status}
             </Badge>
             {hackathon.mode} · {new Date(hackathon.startDate).toLocaleDateString()} – {new Date(hackathon.endDate).toLocaleDateString()}
@@ -234,7 +234,7 @@ function OverviewTab({ hackathon }: { hackathon: Hackathon }) {
           <Card className="p-5">
             <h3 className="font-semibold text-text-primary mb-3">Hackathon Info</h3>
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-text-muted">Status</span><Badge variant={hackathon.status === 'DRAFT' ? 'warning' : hackathon.status === 'PUBLISHED' ? 'success' : hackathon.status === 'ONGOING' ? 'accent' : 'default'} size="sm">{hackathon.status}</Badge></div>
+              <div className="flex justify-between"><span className="text-text-muted">Status</span><Badge variant={hackathon.status === 'DRAFT' ? 'warning' : hackathon.status === 'PUBLISHED' ? 'success' : hackathon.status === 'ONGOING' ? 'accent' : 'neutral'} size="sm">{hackathon.status}</Badge></div>
               <div className="flex justify-between"><span className="text-text-muted">Mode</span><span className="font-medium">{hackathon.mode}</span></div>
               <div className="flex justify-between"><span className="text-text-muted">Fee</span><span className="font-medium">{hackathon.registrationFee === '0' || !hackathon.registrationFee ? 'Free' : `₹${parseInt(hackathon.registrationFee).toLocaleString()}`}</span></div>
               <div className="flex justify-between"><span className="text-text-muted">Approval</span><Badge variant={hackathon.approvalRequired ? 'warning' : 'success'} size="sm">{hackathon.approvalRequired ? 'Required' : 'Auto'}</Badge></div>
@@ -689,7 +689,7 @@ function ProblemsSection({ hackathon }: { hackathon: Hackathon }) {
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-medium text-text-primary">{p.title}</span>
                       <span className={cn('text-[10px] font-medium px-1.5 py-0.5 rounded border', diffStyles[p.difficulty] || '')}>{p.difficulty}</span>
-                      {!p.isActive && <Badge variant="default" size="sm">Hidden</Badge>}
+                      {!p.isActive && <Badge variant="neutral" size="sm">Hidden</Badge>}
                     </div>
                     <p className="text-sm text-text-muted mt-1 line-clamp-2">{p.description}</p>
                     {p.technologies.length > 0 && (
@@ -827,8 +827,8 @@ function AnnouncementsSection({ hackathon }: { hackathon: Hackathon }) {
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-medium text-text-primary">{a.title}</span>
                         {a.isPinned && <Badge variant="accent" size="sm">Pinned</Badge>}
-                        {isScheduled && <Badge variant="default" size="sm" className="border-blue-500/30 text-blue-400"><Clock className="h-3 w-3 mr-1" />Scheduled</Badge>}
-                        {!a.isActive && !isScheduled && <Badge variant="default" size="sm">Draft</Badge>}
+                        {isScheduled && <Badge variant="neutral" size="sm" className="border-blue-500/30 text-blue-400"><Clock className="h-3 w-3 mr-1" />Scheduled</Badge>}
+                        {!a.isActive && !isScheduled && <Badge variant="neutral" size="sm">Draft</Badge>}
                         <span className="text-xs text-text-muted">{new Date(a.createdAt).toLocaleDateString()}</span>
                       </div>
                       <p className="text-sm text-text-muted mt-1 whitespace-pre-wrap">{a.content}</p>

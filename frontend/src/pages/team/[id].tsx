@@ -254,7 +254,7 @@ export function TeamDetailPage() {
                       </div>
                     </div>
                     <div className="flex gap-1">
-                      <Badge variant={inv.status === 'PENDING' ? 'warning' : 'default'} size="sm">
+                      <Badge variant={inv.status === 'PENDING' ? 'warning' : 'neutral'} size="sm">
                         {inv.status}
                       </Badge>
                       {isOwner && inv.status === 'PENDING' && (

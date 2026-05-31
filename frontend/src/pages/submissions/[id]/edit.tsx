@@ -23,7 +23,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useUIStore } from '@/stores/ui-store';
 import type { Submission } from '@/types/submission';
 import type { Team } from '@/types/team';
-import type { StageConfig, EvaluationCriterion } from '@/types/hackathon';
+import type { StageConfig, EvaluationCriterion, RequirementField } from '@/types/hackathon';
 
 const STORAGE_KEY_PREFIX = 'hackhub-submission-draft-';
 
@@ -299,14 +299,14 @@ export function SubmissionEditPage() {
 
   if (showPreview && stageForPreview) {
     const previewFields = (isNew
-      ? ((stage?.requirements as unknown as Array<Record<string, unknown>>) ?? [])
-      : ((submission?.stage?.requirements as unknown as Array<Record<string, unknown>>) ?? [])
+      ? ((stage?.requirements ?? []) as RequirementField[])
+      : ((submission?.stage?.requirements ?? []) as RequirementField[])
     ).map((r) => ({
-      key: r.key as string,
-      label: r.label as string,
-      type: r.type as string,
-      value: formData[r.key as string],
-      required: r.required as boolean,
+      key: r.key,
+      label: r.label,
+      type: r.type,
+      value: formData[r.key],
+      required: r.required,
     }));
 
     return (
@@ -374,22 +374,8 @@ export function SubmissionEditPage() {
             <Card className="p-6">
               <DynamicSubmissionForm
                 requirements={isNew
-                  ? ((stage?.requirements as unknown as Array<Record<string, unknown>>) ?? []).map((r) => ({
-                      key: r.key as string,
-                      label: r.label as string,
-                      type: r.type as string,
-                      required: r.required as boolean,
-                      placeholder: r.placeholder as string | undefined,
-                      validation: r.validation as Record<string, unknown> | undefined,
-                    }))
-                  : ((submission?.stage?.requirements as unknown as Array<Record<string, unknown>>) ?? []).map((r) => ({
-                      key: r.key as string,
-                      label: r.label as string,
-                      type: r.type as string,
-                      required: r.required as boolean,
-                      placeholder: r.placeholder as string | undefined,
-                      validation: r.validation as Record<string, unknown> | undefined,
-                    }))
+                  ? ((stage?.requirements ?? []) as RequirementField[])
+                  : ((submission?.stage?.requirements ?? []) as RequirementField[])
                 }
                 initialData={formData}
                 onDataChange={(data) => {
@@ -504,7 +490,7 @@ export function SubmissionEditPage() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-text-muted">Executed</span>
-                    <Badge variant={(stageForPreview as StageConfig).promotionExecuted ? 'success' : 'default'} size="sm">
+                    <Badge variant={(stageForPreview as StageConfig).promotionExecuted ? 'success' : 'neutral'} size="sm">
                       {(stageForPreview as StageConfig).promotionExecuted ? 'Yes' : 'No'}
                     </Badge>
                   </div>

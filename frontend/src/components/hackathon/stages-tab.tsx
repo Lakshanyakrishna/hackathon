@@ -57,7 +57,7 @@ export function StagesTab({ stages }: StagesTabProps) {
                     <h4 className="font-semibold text-text-primary">
                       Stage {stage.order}: {stage.name}
                     </h4>
-                    {ended && <Badge variant="default" size="sm">Ended</Badge>}
+                    {ended && <Badge variant="neutral" size="sm">Ended</Badge>}
                     {started && !ended && <Badge variant="success" size="sm">Active</Badge>}
                     {!started && <Badge variant="accent" size="sm">Upcoming</Badge>}
                   </div>

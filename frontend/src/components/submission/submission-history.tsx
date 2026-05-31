@@ -80,7 +80,7 @@ export function SubmissionHistory({ versions, currentVersion, onViewVersion }: S
                       Version {v.version}
                     </span>
                     <Badge
-                      variant={v.status === 'LOCKED' ? 'accent' : v.status === 'SUBMITTED' ? 'success' : 'default'}
+                      variant={v.status === 'LOCKED' ? 'accent' : v.status === 'SUBMITTED' ? 'success' : 'neutral'}
                       size="sm"
                     >
                       {v.status === 'LOCKED' ? <Lock className="h-3 w-3 mr-0.5" /> : null}

@@ -142,8 +142,8 @@ function LandingPreview({ hackathon, stages, persona }: { hackathon: Hackathon; 
         <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
           <div className="space-y-3 w-full">
             <div className="flex flex-wrap gap-2">
-              <Badge variant={isOpen ? 'success' : 'default'} size="sm">{isOpen ? 'OPEN' : 'CLOSED'}</Badge>
-              <Badge variant="default" size="sm">{hackathon.mode}</Badge>
+              <Badge variant={isOpen ? 'success' : 'neutral'} size="sm">{isOpen ? 'OPEN' : 'CLOSED'}</Badge>
+              <Badge variant="neutral" size="sm">{hackathon.mode}</Badge>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">{hackathon.title}</h1>
             <p className="text-text-muted text-sm sm:text-base">{hackathon.description}</p>

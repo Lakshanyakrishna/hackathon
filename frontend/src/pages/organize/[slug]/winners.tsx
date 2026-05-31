@@ -134,7 +134,7 @@ export function WinnersPage() {
                     </div>
                     <div className="min-w-0">
                       <p className="font-semibold text-text-primary truncate">{winner.team.name}</p>
-                      <Badge variant="default" size="sm" className={cn('mt-0.5', colorClass)}>{winner.awardTitle}</Badge>
+                      <Badge variant="neutral" size="sm" className={cn('mt-0.5', colorClass)}>{winner.awardTitle}</Badge>
                     </div>
                   </div>
                   {winner.prize && (

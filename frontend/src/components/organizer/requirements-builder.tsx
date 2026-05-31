@@ -3,15 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-
-interface RequirementField {
-  key: string;
-  label: string;
-  type: string;
-  required: boolean;
-  placeholder?: string;
-  validation?: Record<string, unknown>;
-}
+import { type RequirementField } from '@/types/hackathon';
 
 interface RequirementsBuilderProps {
   value: RequirementField[];

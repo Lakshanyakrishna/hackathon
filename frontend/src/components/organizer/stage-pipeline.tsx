@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Settings, ChevronRight, Clock, Calendar, Star, CheckCircle2 } from 'lucide-react';
-import type { StageConfig } from '@/types/hackathon';
+import { Plus, Settings, ChevronRight, Clock, Calendar, Star, CheckCircle2, AlertTriangle } from 'lucide-react';
+import type { StageConfig, RequirementField } from '@/types/hackathon';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
@@ -83,7 +83,7 @@ export function StagePipeline({ stages, onCreate, onEdit, onDelete, onMoveUp, on
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <h4 className="font-semibold text-text-primary text-sm truncate">{stage.name}</h4>
-                      <Badge variant={stage.isActive ? 'success' : 'default'} size="sm">
+                      <Badge variant={stage.isActive ? 'success' : 'neutral'} size="sm">
                         {stage.isActive ? 'Active' : 'Inactive'}
                       </Badge>
                     </div>
@@ -115,7 +115,7 @@ export function StagePipeline({ stages, onCreate, onEdit, onDelete, onMoveUp, on
                   <div className="flex flex-wrap gap-1.5">
                     <span className="inline-flex items-center gap-1 rounded-full bg-accent/5 px-2 py-0.5 text-[10px] font-medium text-accent">
                       <FileTextIcon className="h-2.5 w-2.5" />
-                      {(stage.requirements as unknown as Array<unknown>)?.length ?? 0} req
+                      {(stage.requirements as RequirementField[])?.length ?? 0} req
                     </span>
                     <span className="inline-flex items-center gap-1 rounded-full bg-accent/5 px-2 py-0.5 text-[10px] font-medium text-accent">
                       <Star className="h-2.5 w-2.5" />

@@ -93,7 +93,7 @@ export function SubmissionPreview({
                     {formatValue(field)}
                   </p>
                 </div>
-                <Badge variant={field.value && field.value !== '' ? 'success' : 'default'} size="sm">
+                <Badge variant={field.value && field.value !== '' ? 'success' : 'neutral'} size="sm">
                   {field.value && field.value !== '' ? 'Set' : 'Missing'}
                 </Badge>
               </div>

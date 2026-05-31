@@ -42,7 +42,7 @@ export function ProblemStatementsTab({ statements }: ProblemStatementsTabProps) 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h4 className="font-semibold text-text-primary">{s.title}</h4>
-                  <Badge variant={difficultyColors[s.difficulty] ?? 'default'} size="sm">
+                  <Badge variant={difficultyColors[s.difficulty] ?? 'neutral'} size="sm">
                     {s.difficulty}
                   </Badge>
                 </div>

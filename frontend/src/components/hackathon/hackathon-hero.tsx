@@ -1,28 +1,23 @@
 import { motion } from 'framer-motion';
 import { Calendar, Clock, MapPin, DollarSign, Users, Trophy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { formatDate } from '@/utils/format';
 import type { Hackathon } from '@/types/hackathon';
 
 interface HackathonHeroProps {
   hackathon: Hackathon;
 }
 
-const statusStyles: Record<string, { label: string; variant: 'success' | 'warning' | 'accent' | 'error' | 'default' }> = {
-  DRAFT: { label: 'Draft', variant: 'default' },
-  PUBLISHED: { label: 'Published', variant: 'accent' },
-  ONGOING: { label: 'Live', variant: 'success' },
-  COMPLETED: { label: 'Completed', variant: 'default' },
-  ARCHIVED: { label: 'Archived', variant: 'error' },
+const statusStyles: Record<string, { label: string; variant: 'success' | 'warning' | 'accent' | 'error' | 'neutral' }> = {
+  DRAFT: { label: 'Draft', variant: 'neutral' },
+  PUBLISHED: { label: 'Published', variant: 'success' },
+  ONGOING: { label: 'Ongoing', variant: 'accent' },
+  COMPLETED: { label: 'Completed', variant: 'neutral' },
+  ARCHIVED: { label: 'Archived', variant: 'neutral' },
 };
 
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'long', day: 'numeric', year: 'numeric',
-  });
-}
-
 export function HackathonHero({ hackathon }: HackathonHeroProps) {
-  const statusStyle = statusStyles[hackathon.status] ?? { label: hackathon.status, variant: 'default' as const };
+  const statusStyle = statusStyles[hackathon.status] ?? { label: hackathon.status, variant: 'neutral' as const };
 
   return (
     <motion.div

@@ -30,7 +30,7 @@ export interface StageConfig {
   startDate?: string | null;
   endDate?: string | null;
   isActive: boolean;
-  requirements?: Record<string, unknown> | null;
+  requirements?: RequirementField[] | null;
   evaluationCriteria?: EvaluationCriterion[] | null;
   promotionRule?: PromotionRule | null;
   promotionExecuted: boolean;
@@ -38,6 +38,15 @@ export interface StageConfig {
   promotedBy?: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface RequirementField {
+  key: string;
+  label: string;
+  type: string;
+  required: boolean;
+  placeholder?: string;
+  validation?: Record<string, unknown>;
 }
 
 export interface EvaluationCriterion {

@@ -13,12 +13,12 @@ interface WelcomeHeaderProps {
   registration: Registration | null;
 }
 
-const statusLabel: Record<string, { label: string; variant: 'warning' | 'success' | 'accent' | 'error' | 'default' }> = {
+const statusLabel: Record<string, { label: string; variant: 'warning' | 'success' | 'accent' | 'error' | 'neutral' }> = {
   PENDING_PAYMENT: { label: 'Pending Payment', variant: 'warning' },
   PENDING_APPROVAL: { label: 'Pending Approval', variant: 'warning' },
   APPROVED: { label: 'Approved', variant: 'success' },
   REJECTED: { label: 'Rejected', variant: 'error' },
-  CANCELLED: { label: 'Cancelled', variant: 'default' },
+  CANCELLED: { label: 'Cancelled', variant: 'neutral' },
 };
 
 export function WelcomeHeader({ name, hackathon, team, registration }: WelcomeHeaderProps) {

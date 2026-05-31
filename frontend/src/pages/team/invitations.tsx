@@ -134,7 +134,7 @@ export function PendingInvitationsPage() {
             <div className="space-y-2">
               {invitations.filter((i) => i.status !== 'PENDING').map((inv) => (
                 <Card key={inv.id} className="p-3 flex items-center gap-3 opacity-60">
-                  <Badge variant={inv.status === 'ACCEPTED' ? 'success' : inv.status === 'REJECTED' ? 'error' : 'default'} size="sm">
+                  <Badge variant={inv.status === 'ACCEPTED' ? 'success' : inv.status === 'REJECTED' ? 'error' : 'neutral'} size="sm">
                     {inv.status}
                   </Badge>
                   <p className="text-sm text-text-muted">{inv.team?.name ?? 'Team'}</p>

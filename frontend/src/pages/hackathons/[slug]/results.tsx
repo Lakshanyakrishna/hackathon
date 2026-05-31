@@ -123,7 +123,7 @@ export function ResultsPage() {
                       <Icon className={`h-6 w-6 ${config.color}`} />
                     </div>
                   </div>
-                  <Badge variant="default" size="sm" className={`${config.color}`}>{winner.awardTitle}</Badge>
+                  <Badge variant="neutral" size="sm" className={`${config.color}`}>{winner.awardTitle}</Badge>
                   <h3 className="font-semibold text-text-primary mt-2">{winner.team.name}</h3>
                   {winner.prize && <p className="text-sm text-text-muted mt-1">₹{Number(winner.prize.amount).toLocaleString()}</p>}
                   {winner.team.members && (

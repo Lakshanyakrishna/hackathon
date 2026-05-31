@@ -1,4 +1,4 @@
-import type { EvaluationCriterion } from './hackathon';
+import type { StageConfig } from './hackathon';
 
 export interface Submission {
   id: string;
@@ -16,14 +16,7 @@ export interface Submission {
   previousVersionId?: string | null;
   createdAt: string;
   updatedAt: string;
-  stage?: {
-    id: string;
-    name: string;
-    order: number;
-    requirements?: Record<string, unknown> | null;
-    endDate?: string | null;
-    evaluationCriteria?: EvaluationCriterion[] | null;
-  };
+  stage?: StageConfig;
   team?: { id: string; name: string };
 }
 
