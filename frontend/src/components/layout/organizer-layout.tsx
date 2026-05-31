@@ -8,6 +8,7 @@ import {
   BarChart3,
   Users,
   Megaphone,
+  Bell,
   Menu,
   X,
   Eye,
@@ -22,6 +23,8 @@ import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { hackathonService } from '@/services/hackathons';
+import { authService } from '@/services/auth';
+import { notificationService } from '@/services/notifications';
 
 export function OrganizerLayout() {
   const { user, logout } = useAuthStore();
@@ -37,8 +40,14 @@ export function OrganizerLayout() {
     enabled: !!slug,
   });
 
+  const { data: unreadCount } = useQuery({
+    queryKey: ['notifications-unread'],
+    queryFn: () => notificationService.unreadCount().then(r => (r.data as { unreadCount: number }).unreadCount),
+    refetchInterval: 30000,
+  });
+
   const navItems = [
-    { href: `/organize/${slug}`, label: 'Overview', icon: Settings },
+    { href: `/organize/${slug}`, label: 'Overview', icon: LayoutDashboard },
     { href: `/organize/${slug}/analytics`, label: 'Analytics', icon: BarChart3 },
   ];
 
@@ -48,13 +57,13 @@ export function OrganizerLayout() {
     { href: `/organize/${slug}?tab=prizes`, label: 'Prizes', icon: Award },
     { href: `/organize/${slug}?tab=problems`, label: 'Problems', icon: FileText },
     { href: `/organize/${slug}?tab=announcements`, label: 'Announcements', icon: Megaphone },
+    { href: `/organize/${slug}/registrations`, label: 'Registrations', icon: Users },
     { href: `/organize/${slug}/submissions`, label: 'Submissions', icon: Users },
     { href: `/organize/${slug}/winners`, label: 'Winners', icon: Trophy },
   ];
 
   const handleLogout = async () => {
-    try { await fetch('/api/v1/auth/logout', { method: 'POST' }); } catch { /* ignore */ }
-    localStorage.removeItem('accessToken');
+    try { await authService.logout(); } catch { /* ignore */ }
     logout();
     navigate('/');
   };
@@ -99,45 +108,49 @@ export function OrganizerLayout() {
         </div>
 
         <nav className="flex-1 overflow-y-auto space-y-1 p-3">
-          <p className={cn('px-3 text-xs font-medium text-text-muted uppercase tracking-wider pt-2 pb-1', !sidebarOpen && 'lg:hidden')}>
-            Main
-          </p>
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors',
-                isActive(item.href)
-                  ? 'bg-accent/10 text-accent'
-                  : 'text-text-secondary hover:bg-bg-elevated hover:text-text-primary',
-              )}
-              onClick={() => isMobile && setSidebarOpen(false)}
-            >
-              <item.icon className="h-5 w-5 shrink-0" />
-              {sidebarOpen && <span>{item.label}</span>}
-            </Link>
-          ))}
+          {slug && (
+            <>
+              <p className={cn('px-3 text-xs font-medium text-text-muted uppercase tracking-wider pt-2 pb-1', !sidebarOpen && 'lg:hidden')}>
+                Main
+              </p>
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className={cn(
+                    'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors',
+                    isActive(item.href)
+                      ? 'bg-accent/10 text-accent'
+                      : 'text-text-secondary hover:bg-bg-elevated hover:text-text-primary',
+                  )}
+                  onClick={() => isMobile && setSidebarOpen(false)}
+                >
+                  <item.icon className="h-5 w-5 shrink-0" />
+                  {sidebarOpen && <span>{item.label}</span>}
+                </Link>
+              ))}
 
-          <p className={cn('px-3 text-xs font-medium text-text-muted uppercase tracking-wider pt-4 pb-1', !sidebarOpen && 'lg:hidden')}>
-            Sections
-          </p>
-          {sectionItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors',
-                isActive(item.href)
-                  ? 'bg-accent/10 text-accent'
-                  : 'text-text-secondary hover:bg-bg-elevated hover:text-text-primary',
-              )}
-              onClick={() => isMobile && setSidebarOpen(false)}
-            >
-              <item.icon className="h-5 w-5 shrink-0" />
-              {sidebarOpen && <span>{item.label}</span>}
-            </Link>
-          ))}
+              <p className={cn('px-3 text-xs font-medium text-text-muted uppercase tracking-wider pt-4 pb-1', !sidebarOpen && 'lg:hidden')}>
+                Sections
+              </p>
+              {sectionItems.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className={cn(
+                    'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors',
+                    isActive(item.href)
+                      ? 'bg-accent/10 text-accent'
+                      : 'text-text-secondary hover:bg-bg-elevated hover:text-text-primary',
+                  )}
+                  onClick={() => isMobile && setSidebarOpen(false)}
+                >
+                  <item.icon className="h-5 w-5 shrink-0" />
+                  {sidebarOpen && <span>{item.label}</span>}
+                </Link>
+              ))}
+            </>
+          )}
         </nav>
 
         <div className="border-t border-border p-3">
@@ -190,6 +203,12 @@ export function OrganizerLayout() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
+            <Link to="/notifications" className="relative rounded-md p-1.5 text-text-muted hover:text-text-primary">
+              <Bell className="h-5 w-5" />
+              {unreadCount != null && unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-error px-1 text-[10px] font-medium text-white">{unreadCount > 99 ? '99+' : unreadCount}</span>
+              )}
+            </Link>
             <Button variant="ghost" size="sm" className="hidden sm:flex gap-2" onClick={handlePreview}>
               <Eye className="h-4 w-4" />
               Preview

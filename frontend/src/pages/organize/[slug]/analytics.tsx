@@ -14,6 +14,7 @@ import { Progress } from '@/components/ui/progress';
 import { ErrorState } from '@/components/shared/error-state';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/utils/cn';
+import { unwrapData } from '@/utils/unwrap-data';
 import type { Hackathon } from '@/types/hackathon';
 
 export function AnalyticsPage() {
@@ -25,7 +26,7 @@ export function AnalyticsPage() {
     refetch: refetchHackathon,
   } = useQuery({
     queryKey: ['hackathon', slug],
-    queryFn: () => hackathonService.getBySlug(slug!).then((r) => (r.data ?? r) as Hackathon),
+    queryFn: () => hackathonService.getBySlug(slug!).then((r) => unwrapData<Hackathon>(r)),
     enabled: !!slug,
   });
 
@@ -43,7 +44,7 @@ export function AnalyticsPage() {
     refetch: refetchReg,
   } = useQuery({
     queryKey: ['registrations', hackathon?.id],
-    queryFn: () => registrationService.list({ hackathonId: hackathon!.id }).then((r) => (r.data ?? r) as unknown as Array<Record<string, unknown>>),
+    queryFn: () => registrationService.list({ hackathonId: hackathon!.id }).then((r) => unwrapData<Array<Record<string, unknown>>>(r)),
     enabled: !!hackathon?.id,
   });
 

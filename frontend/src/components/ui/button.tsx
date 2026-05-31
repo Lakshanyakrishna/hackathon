@@ -11,7 +11,7 @@ const buttonVariants = cva(
         secondary: 'bg-bg-elevated text-text-primary hover:bg-bg-hover border border-border',
         ghost: 'text-text-secondary hover:text-text-primary hover:bg-bg-elevated',
         danger: 'bg-error text-white hover:bg-red-600',
-        gradient: 'bg-gradient-to-r from-accent to-pink text-white hover:opacity-90 shadow-md',
+        gradient: 'bg-accent text-white hover:bg-accent-hover shadow-md',
         outline: 'border border-border bg-transparent text-text-primary hover:bg-bg-elevated',
       },
       size: {

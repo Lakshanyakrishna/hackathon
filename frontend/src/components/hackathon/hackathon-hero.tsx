@@ -23,7 +23,7 @@ export function HackathonHero({ hackathon }: HackathonHeroProps) {
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-accent/10 via-bg-surface to-pink/10"
+      className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-accent/10 via-bg-surface to-accent-dim/10"
     >
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-accent/10 blur-[80px]" />
@@ -49,10 +49,10 @@ export function HackathonHero({ hackathon }: HackathonHeroProps) {
             <Calendar className="h-4 w-4 text-accent" />
             <span>{formatDate(hackathon.startDate)} – {formatDate(hackathon.endDate)}</span>
           </div>
-          {hackathon.location && (
+          {hackathon.meetingLink && (
             <div className="flex items-center gap-2 text-sm text-text-muted">
               <MapPin className="h-4 w-4 text-accent" />
-              <span>{hackathon.location}</span>
+              <span>{hackathon.meetingLink}</span>
             </div>
           )}
           <div className="flex items-center gap-2 text-sm text-text-muted">
@@ -68,7 +68,6 @@ export function HackathonHero({ hackathon }: HackathonHeroProps) {
               <p className="text-xs text-text-muted">Team Size</p>
               <p className="text-sm font-medium text-text-primary">
                 {hackathon.minTeamSize}–{hackathon.maxTeamSize}
-                {hackathon.allowSoloRegistration ? ' (solo ok)' : ''}
               </p>
             </div>
           </div>
@@ -77,7 +76,7 @@ export function HackathonHero({ hackathon }: HackathonHeroProps) {
             <div>
               <p className="text-xs text-text-muted">Registration</p>
               <p className="text-sm font-medium text-text-primary">
-                {formatDate(hackathon.registrationStartDate)} – {formatDate(hackathon.registrationEndDate)}
+                {formatDate(hackathon.registrationDeadline)}
               </p>
             </div>
           </div>
@@ -86,7 +85,7 @@ export function HackathonHero({ hackathon }: HackathonHeroProps) {
             <div>
               <p className="text-xs text-text-muted">Approval</p>
               <p className="text-sm font-medium text-text-primary">
-                {hackathon.approvalRequired ? 'Required' : 'Not required'}
+                {hackathon.registrationMode === 'APPROVAL_REQUIRED' ? 'Required' : 'Not required'}
               </p>
             </div>
           </div>

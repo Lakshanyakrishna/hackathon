@@ -23,7 +23,7 @@ export function StagePipeline({ stages, onCreate, onEdit, onDelete, onMoveUp, on
         </div>
         <p className="text-lg font-medium text-text-primary">No stages yet</p>
         <p className="text-sm text-text-muted max-w-xs text-center">Create your first stage to define the hackathon flow. Stages are the building blocks of your event.</p>
-        <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-pink hover:opacity-90" onClick={onCreate}>
+        <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90" onClick={onCreate}>
           <Plus className="h-4 w-4" /> Create First Stage
         </Button>
       </div>
@@ -34,7 +34,7 @@ export function StagePipeline({ stages, onCreate, onEdit, onDelete, onMoveUp, on
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-text-muted">{stages.length} stage{stages.length !== 1 && 's'} in pipeline</p>
-        <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-pink hover:opacity-90" onClick={onCreate}>
+        <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90" onClick={onCreate}>
           <Plus className="h-4 w-4" /> Add Stage
         </Button>
       </div>
@@ -113,14 +113,18 @@ export function StagePipeline({ stages, onCreate, onEdit, onDelete, onMoveUp, on
 
                   {/* Stats chips */}
                   <div className="flex flex-wrap gap-1.5">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-accent/5 px-2 py-0.5 text-[10px] font-medium text-accent">
-                      <FileTextIcon className="h-2.5 w-2.5" />
-                      {(stage.requirements as RequirementField[])?.length ?? 0} req
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-accent/5 px-2 py-0.5 text-[10px] font-medium text-accent">
-                      <Star className="h-2.5 w-2.5" />
-                      {(stage.evaluationCriteria as Array<unknown>)?.length ?? 0} criteria
-                    </span>
+                    {(stage.requirements as RequirementField[])?.length ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-accent/5 px-2 py-0.5 text-[10px] font-medium text-accent">
+                        <FileTextIcon className="h-2.5 w-2.5" />
+                        {(stage.requirements as RequirementField[]).length} req
+                      </span>
+                    ) : null}
+                    {(stage.evaluationCriteria as Array<unknown>)?.length ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-accent/5 px-2 py-0.5 text-[10px] font-medium text-accent">
+                        <Star className="h-2.5 w-2.5" />
+                        {(stage.evaluationCriteria as Array<unknown>).length} criteria
+                      </span>
+                    ) : null}
                     {stage.promotionRule && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-accent/5 px-2 py-0.5 text-[10px] font-medium text-accent">
                         <CheckCircle2 className="h-2.5 w-2.5" />

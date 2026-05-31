@@ -40,7 +40,7 @@ export function PrizesTab({ prizes }: PrizesTabProps) {
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {prizes.map((prize, i) => {
         const Icon = positionIcons[prize.position] ?? Trophy;
-        const colorClass = positionColors[prize.position] ?? 'from-accent/10 to-purple-500/10';
+        const colorClass = positionColors[prize.position] ?? 'from-accent/10 to-teal-light/10';
         const iconColor = iconColors[prize.position] ?? 'text-accent';
 
         return (

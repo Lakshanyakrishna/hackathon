@@ -65,7 +65,7 @@ export const paymentService = {
       handler: (response) => {
         onSuccess(response.razorpay_payment_id);
       },
-      theme: { color: '#8b5cf6' },
+      theme: { color: '#14C8C8' },
     };
 
     const rzp = new window.Razorpay(options);

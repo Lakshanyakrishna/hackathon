@@ -138,7 +138,7 @@ function LandingPreview({ hackathon, stages, persona }: { hackathon: Hackathon; 
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <div className="rounded-2xl bg-gradient-to-br from-accent/10 via-bg-surface to-pink/5 border border-border p-6 sm:p-8">
+      <div className="rounded-2xl bg-gradient-to-br from-accent/10 via-bg-surface to-accent-dim/5 border border-border p-6 sm:p-8">
         <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
           <div className="space-y-3 w-full">
             <div className="flex flex-wrap gap-2">
@@ -188,10 +188,10 @@ function LandingPreview({ hackathon, stages, persona }: { hackathon: Hackathon; 
         </div>
       )}
 
-      <div className="rounded-xl bg-gradient-to-r from-accent/10 to-pink/5 border border-border p-6 text-center">
+      <div className="rounded-xl bg-gradient-to-r from-accent/10 to-accent-dim/5 border border-border p-6 text-center">
         <p className="text-base sm:text-lg font-semibold text-text-primary mb-2">Ready to participate?</p>
         <p className="text-sm text-text-muted mb-4">Registration {isOpen ? 'is open' : 'will open soon'}.</p>
-        <Button className="bg-gradient-to-r from-accent to-pink hover:opacity-90 w-full sm:w-auto" disabled={!isOpen || persona === 'eliminated' || persona === 'finalist'}>
+        <Button className="bg-gradient-to-r from-accent to-accent-dim hover:opacity-90 w-full sm:w-auto" disabled={!isOpen || persona === 'eliminated' || persona === 'finalist'}>
           {persona === 'eliminated' ? 'Registration Unavailable' : persona === 'finalist' ? 'Already Registered' : isOpen ? 'Register Now' : 'Registration Closed'}
         </Button>
       </div>
@@ -227,7 +227,7 @@ function RegistrationPreview({ hackathon, persona }: { hackathon: Hackathon; per
         </div>
         <div className="mt-4 flex items-center gap-2 text-sm text-text-muted">
           <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
-          {hackathon.approvalRequired ? 'Requires admin approval' : 'Auto-approved'}
+          {hackathon.registrationMode === 'APPROVAL_REQUIRED' ? 'Requires admin approval' : 'Auto-approved'}
         </div>
       </div>
 
@@ -235,7 +235,7 @@ function RegistrationPreview({ hackathon, persona }: { hackathon: Hackathon; per
         <h3 className="font-semibold text-text-primary mb-3">Team Configuration</h3>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between"><span className="text-text-muted">Team size</span><span className="font-medium">{hackathon.minTeamSize}–{hackathon.maxTeamSize} members</span></div>
-          <div className="flex justify-between"><span className="text-text-muted">Solo registration</span><span className="font-medium">{hackathon.allowSoloRegistration ? 'Allowed' : 'Not allowed'}</span></div>
+          <div className="flex justify-between"><span className="text-text-muted">Solo registration</span><span className="font-medium">{hackathon.minTeamSize === 1 ? 'Allowed' : 'Not allowed'}</span></div>
           {persona === 'team-lead' && <div className="flex justify-between"><span className="text-text-muted">Role</span><Badge variant="accent" size="sm">Team Lead</Badge></div>}
           {persona === 'finalist' && <div className="flex justify-between"><span className="text-text-muted">Status</span><Badge variant="success" size="sm">Finalist</Badge></div>}
         </div>
@@ -276,7 +276,7 @@ function DashboardPreview({ hackathon, stages, persona }: { hackathon: Hackathon
       {/* Persona-specific welcome */}
       <div className={cn(
         'rounded-xl border p-6',
-        isEliminated ? 'bg-error/5 border-error/20' : isFinalist ? 'bg-warning/5 border-warning/20' : isTeamLead ? 'bg-accent/5 border-accent/20' : 'bg-gradient-to-br from-accent/10 to-pink/5 border-border',
+        isEliminated ? 'bg-error/5 border-error/20' : isFinalist ? 'bg-warning/5 border-warning/20' : isTeamLead ? 'bg-accent/5 border-accent/20' : 'bg-gradient-to-br from-accent/10 to-accent-dim/5 border-border',
       )}>
         <div className="flex items-start gap-4 flex-wrap">
           {isEliminated && <Ban className="h-8 w-8 text-error" />}

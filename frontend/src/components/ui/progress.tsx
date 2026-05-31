@@ -16,7 +16,7 @@ export function Progress({ value, max = 100, className, variant = 'gradient' }: 
         className={cn(
           'h-full rounded-full transition-all duration-500',
           variant === 'gradient'
-            ? 'bg-gradient-to-r from-accent to-pink'
+            ? 'bg-gradient-to-r from-accent to-accent-dim'
             : 'bg-accent',
         )}
         style={{ width: `${percentage}%` }}

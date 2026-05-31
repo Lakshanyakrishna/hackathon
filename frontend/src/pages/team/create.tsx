@@ -10,6 +10,8 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Hackathon } from '@/types/hackathon';
+import type { Team } from '@/types/team';
+import { unwrapData } from '@/utils/unwrap-data';
 
 export function CreateTeamPage() {
   const navigate = useNavigate();
@@ -22,7 +24,7 @@ export function CreateTeamPage() {
 
   const { data: hackathon, isLoading: hackathonLoading } = useQuery({
     queryKey: ['hackathon', hackathonId],
-    queryFn: () => hackathonService.getById(hackathonId!).then((r) => (r.data ?? r) as Hackathon),
+    queryFn: () => hackathonService.getById(hackathonId!).then((r) => unwrapData<Hackathon>(r)),
     enabled: !!hackathonId,
   });
 
@@ -33,7 +35,7 @@ export function CreateTeamPage() {
       return teamService.create({ hackathonId: hackathonId, name: name.trim() });
     },
     onSuccess: (res) => {
-      const team = res.data ?? (res as unknown as { id: string });
+      const team = unwrapData<Team>(res);
       queryClient.invalidateQueries({ queryKey: ['my-teams'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-teams'] });
       navigate(`/team/${team.id}`);
@@ -71,7 +73,7 @@ export function CreateTeamPage() {
             </p>
             <p className="text-xs text-text-muted mt-0.5">
               Team size: {hackathon.minTeamSize}–{hackathon.maxTeamSize} members
-              {hackathon.allowSoloRegistration && ' · Solo allowed'}
+              {hackathon.minTeamSize === 1 && ' · Solo allowed'}
             </p>
           </Card>
         )}
@@ -104,7 +106,7 @@ export function CreateTeamPage() {
               Cancel
             </Button>
             <Button
-              className="flex-1 gap-2 bg-gradient-to-r from-accent to-pink hover:opacity-90"
+              className="flex-1 gap-2 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90"
               disabled={!name.trim() || createMutation.isPending}
               onClick={() => createMutation.mutate()}
             >

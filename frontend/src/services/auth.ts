@@ -16,6 +16,7 @@ export interface SignupDto {
 export interface AuthResponse {
   user: User;
   accessToken: string;
+  refreshToken: string;
 }
 
 export const authService = {
@@ -25,7 +26,7 @@ export const authService = {
 
   logout: () => api.post('/auth/logout'),
 
-  refresh: () => api.post<{ accessToken: string }>('/auth/refresh'),
+  refresh: (refreshToken?: string) => api.post<{ accessToken: string; refreshToken?: string }>('/auth/refresh', {}, refreshToken ? { headers: { Authorization: `Bearer ${refreshToken}` } } : undefined),
 
   me: () => api.get<User>('/auth/me'),
 

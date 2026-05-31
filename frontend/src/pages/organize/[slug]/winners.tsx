@@ -19,6 +19,7 @@ import { ErrorState } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/utils/cn';
+import { unwrapData } from '@/utils/unwrap-data';
 import { useUIStore } from '@/stores/ui-store';
 import type { Winner } from '@/types/winner';
 import type { Hackathon } from '@/types/hackathon';
@@ -50,25 +51,25 @@ export function WinnersPage() {
 
   const { data: hackathon } = useQuery({
     queryKey: ['hackathon', slug],
-    queryFn: () => hackathonService.getBySlug(slug!).then((r) => (r.data ?? r) as Hackathon),
+    queryFn: () => hackathonService.getBySlug(slug!).then((r) => unwrapData<Hackathon>(r)),
     enabled: !!slug,
   });
 
   const { data: winners, isLoading, isError, refetch } = useQuery({
     queryKey: ['winners', hackathon?.id],
-    queryFn: () => winnerService.list(hackathon!.id).then((r) => (r.data ?? r) as Winner[]),
+    queryFn: () => winnerService.list(hackathon!.id).then((r) => unwrapData<Winner[]>(r)),
     enabled: !!hackathon?.id,
   });
 
   const { data: allTeams } = useQuery({
     queryKey: ['teams', hackathon?.id],
-    queryFn: () => teamService.list().then((r) => (r.data ?? r) as Team[]),
+    queryFn: () => teamService.list().then((r) => unwrapData<Team[]>(r)),
     enabled: !!hackathon?.id,
   });
 
   const { data: prizes } = useQuery({
     queryKey: ['hackathon-prizes', hackathon?.id],
-    queryFn: () => hackathonService.prizes.list(hackathon!.id).then((r) => (r.data ?? r) as Array<{ id: string; title?: string | null; amount: string }>),
+    queryFn: () => hackathonService.prizes.list(hackathon!.id).then((r) => unwrapData<Array<{ id: string; title?: string | null; amount: string }>>(r)),
     enabled: !!hackathon?.id,
   });
 
@@ -101,7 +102,7 @@ export function WinnersPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" className="gap-1.5" onClick={() => refetch()}><RefreshCw className="h-4 w-4" /> Refresh</Button>
-          <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-pink hover:opacity-90" onClick={() => { resetForm(); setModalOpen(true); }}>
+          <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90" onClick={() => { resetForm(); setModalOpen(true); }}>
             <Plus className="h-4 w-4" /> Add Winner
           </Button>
         </div>
@@ -176,7 +177,7 @@ export function WinnersPage() {
           )}
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
-            <Button className="bg-gradient-to-r from-accent to-pink hover:opacity-90 gap-2" onClick={() => {
+            <Button className="bg-gradient-to-r from-accent to-accent-dim hover:opacity-90 gap-2" onClick={() => {
               const title = isCustom && form.awardTitleCustom ? form.awardTitleCustom : form.awardTitle;
               if (!form.teamId) { addToast({ type: 'error', title: 'Select a team' }); return; }
               createMut.mutate({ teamId: form.teamId, awardTitle: title, prizeId: form.prizeId || undefined });

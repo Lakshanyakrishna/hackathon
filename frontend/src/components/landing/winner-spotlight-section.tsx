@@ -24,7 +24,7 @@ export function WinnerSpotlightSection() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-accent/5 via-bg-surface to-pink/5"
+        className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-accent/5 via-bg-surface to-accent-dim/5"
       >
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-accent/5 blur-[80px]" />

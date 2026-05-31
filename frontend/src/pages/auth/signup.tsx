@@ -45,8 +45,7 @@ export function SignupPage() {
         email: data.email,
         password: data.password,
       });
-      localStorage.setItem('accessToken', res.data.accessToken);
-      login(res.data.user, res.data.accessToken);
+      login(res.data.user, res.data.accessToken, res.data.refreshToken);
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to create account');

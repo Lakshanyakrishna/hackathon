@@ -14,6 +14,7 @@ import { EmptyState } from '@/components/shared/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Winner } from '@/types/winner';
 import type { Hackathon } from '@/types/hackathon';
+import { unwrapData } from '@/utils/unwrap-data';
 
 const AWARD_ORDER = ['Winner', 'Runner-Up', 'Second Runner-Up', 'Best Innovation', 'Best UI/UX'];
 const awardConfig: Record<string, { icon: React.ElementType; color: string }> = {
@@ -21,7 +22,7 @@ const awardConfig: Record<string, { icon: React.ElementType; color: string }> = 
   'Runner-Up': { icon: Medal, color: 'text-text-muted' },
   'Second Runner-Up': { icon: Medal, color: 'text-amber-700' },
   'Best Innovation': { icon: Star, color: 'text-accent' },
-  'Best UI/UX': { icon: Palette, color: 'text-pink' },
+  'Best UI/UX': { icon: Palette, color: 'text-accent' },
 };
 
 export function ResultsPage() {
@@ -29,13 +30,13 @@ export function ResultsPage() {
 
   const { data: hackathon } = useQuery({
     queryKey: ['hackathon', slug],
-    queryFn: () => hackathonService.getBySlug(slug!).then((r) => (r.data ?? r) as Hackathon),
+    queryFn: () => hackathonService.getBySlug(slug!).then((r) => unwrapData<Hackathon>(r)),
     enabled: !!slug,
   });
 
   const { data: winners, isLoading, isError, refetch } = useQuery({
     queryKey: ['winners-public', hackathon?.id],
-    queryFn: () => winnerService.list(hackathon!.id).then((r) => (r.data ?? r) as Winner[]),
+    queryFn: () => winnerService.list(hackathon!.id).then((r) => unwrapData<Winner[]>(r)),
     enabled: !!hackathon?.id,
   });
 
@@ -79,7 +80,7 @@ export function ResultsPage() {
             transition={{ delay: 0.2 }}
             className="relative"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-warning/10 via-accent/5 to-warning/10 rounded-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-r from-warning/10 via-accent-dim/5 to-warning/10 rounded-2xl" />
             <Card className="relative p-6 sm:p-8 border-warning/30 text-center">
               <div className="flex justify-center mb-4">
                 <div className="rounded-full bg-warning/10 p-4">

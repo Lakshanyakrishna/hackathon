@@ -17,6 +17,7 @@ import { ErrorState } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/utils/cn';
+import { unwrapData } from '@/utils/unwrap-data';
 import type { Registration } from '@/types/registration';
 import type { Hackathon } from '@/types/hackathon';
 
@@ -35,7 +36,7 @@ export function RegistrationsPage() {
 
   const { data: hackathon } = useQuery({
     queryKey: ['hackathon', slug],
-    queryFn: () => hackathonService.getBySlug(slug!).then((r) => (r.data ?? r) as Hackathon),
+    queryFn: () => hackathonService.getBySlug(slug!).then((r) => unwrapData<Hackathon>(r)),
     enabled: !!slug,
   });
 
@@ -44,7 +45,7 @@ export function RegistrationsPage() {
     queryFn: () => {
       const params: Record<string, string> = {};
       if (search) params.search = search;
-      return registrationService.list(params).then((r) => (r.data ?? r) as Registration[]);
+      return registrationService.list(params).then((r) => unwrapData<Registration[]>(r));
     },
     enabled: !!hackathon?.id,
   });
@@ -220,7 +221,7 @@ function RegistrationsList({
                   </Button>
                   <Button
                     size="sm"
-                    className="gap-1 bg-gradient-to-r from-accent to-pink hover:opacity-90"
+                    className="gap-1 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90"
                     onClick={() => onApprove(reg.id)}
                   >
                     <Check className="h-3 w-3" /> Approve

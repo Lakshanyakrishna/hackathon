@@ -18,6 +18,7 @@ import { Avatar } from '@/components/ui/avatar';
 import { ErrorState } from '@/components/shared/error-state';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/utils/cn';
+import { unwrapData } from '@/utils/unwrap-data';
 import type { Hackathon } from '@/types/hackathon';
 import type { Team, TeamMember } from '@/types/team';
 import type { Registration } from '@/types/registration';
@@ -100,14 +101,14 @@ export function RegisterPage() {
 
   const { data: hackathon, isLoading } = useQuery({
     queryKey: ['hackathon', slug],
-    queryFn: () => hackathonService.getBySlug(slug!).then((r) => (r.data ?? r) as Hackathon),
+    queryFn: () => hackathonService.getBySlug(slug!).then((r) => unwrapData<Hackathon>(r)),
     enabled: !!slug,
     retry: 1,
   });
 
   const { data: myRegistrations } = useQuery({
     queryKey: ['my-registrations', hackathon?.id],
-    queryFn: () => registrationService.my().then((r) => (r.data ?? r) as Registration[]),
+    queryFn: () => registrationService.my().then((r) => unwrapData<Registration[]>(r)),
     enabled: !!hackathon?.id,
   });
 
@@ -115,7 +116,7 @@ export function RegisterPage() {
 
   const { data: myTeams } = useQuery({
     queryKey: ['my-teams', hackathon?.id],
-    queryFn: () => teamService.getMyTeams().then((r) => (r.data ?? r) as Team[]),
+    queryFn: () => teamService.getMyTeams().then((r) => unwrapData<Team[]>(r)),
     enabled: !!hackathon?.id,
   });
 
@@ -139,7 +140,7 @@ export function RegisterPage() {
       });
     },
     onSuccess: (res) => {
-      const reg = res.data ?? (res as unknown as Registration);
+      const reg = unwrapData<Registration>(res);
       const rid = reg.id;
       setRegistrationId(rid);
       if (slug) saveWizardState(slug, { step, teamName, selectedTeamId, registrationId: rid });
@@ -154,8 +155,8 @@ export function RegisterPage() {
         setStep('confirm');
       }
     },
-    onError: (err: Error) => {
-      setError(err.message);
+    onError: (err: unknown) => {
+      setError((err as any)?.response?.data?.message ?? (err as Error).message);
     },
   });
 
@@ -165,12 +166,12 @@ export function RegisterPage() {
       return teamService.create({ hackathonId: hackathon.id, name: teamName.trim() });
     },
     onSuccess: (res) => {
-      const team = res.data ?? (res as unknown as Team);
+      const team = unwrapData<Team>(res);
       setSelectedTeamId(team.id);
       setError(null);
     },
-    onError: (err: Error) => {
-      setError(err.message);
+    onError: (err: unknown) => {
+      setError((err as any)?.response?.data?.message ?? (err as Error).message);
     },
   });
 
@@ -179,7 +180,7 @@ export function RegisterPage() {
     setError(null);
     try {
       const res = await paymentService.createOrder(rid);
-      const order = res.data ?? (res as unknown as OrderResponse);
+      const order = unwrapData<OrderResponse>(res);
       setPaymentOrder(order);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Payment setup failed');
@@ -209,9 +210,10 @@ export function RegisterPage() {
     }
     if (existingTeam) {
       setSelectedTeamId(existingTeam.id);
+      registerMutation.mutate();
+      return;
     }
-    const needTeam = hackathon!.maxTeamSize > 1;
-    if (needTeam && !existingTeam) {
+    if (hackathon!.minTeamSize > 1) {
       setStep('team');
     } else {
       registerMutation.mutate();
@@ -253,7 +255,7 @@ export function RegisterPage() {
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-bg-elevated">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-accent to-pink transition-all duration-500"
+          className="h-full rounded-full bg-gradient-to-r from-accent to-accent-dim transition-all duration-500"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -311,7 +313,7 @@ export function RegisterPage() {
               Team Size
             </div>
             <p className="font-medium text-text-primary">{hackathon.minTeamSize}–{hackathon.maxTeamSize} members</p>
-            {hackathon.allowSoloRegistration && <p className="text-xs text-text-muted mt-0.5">Solo registration allowed</p>}
+            {hackathon.minTeamSize === 1 && <p className="text-xs text-text-muted mt-0.5">Solo registration allowed</p>}
           </div>
           <div className="rounded-lg bg-bg-elevated p-3">
             <div className="flex items-center gap-2 text-sm text-text-muted mb-1">
@@ -325,7 +327,7 @@ export function RegisterPage() {
               <Calendar className="h-4 w-4 text-accent" />
               Deadline
             </div>
-            <p className="font-medium text-text-primary">{new Date(hackathon.registrationEndDate).toLocaleDateString()}</p>
+            <p className="font-medium text-text-primary">{new Date(hackathon.registrationDeadline).toLocaleDateString()}</p>
           </div>
           <div className="rounded-lg bg-bg-elevated p-3">
             <div className="flex items-center gap-2 text-sm text-text-muted mb-1">
@@ -333,7 +335,7 @@ export function RegisterPage() {
               Approval Mode
             </div>
             <p className="font-medium text-text-primary">
-              {hackathon.approvalRequired ? 'Approval Required' : 'Auto-Approved'}
+              {hackathon.registrationMode === 'APPROVAL_REQUIRED' ? 'Approval Required' : 'Auto-Approved'}
             </p>
           </div>
         </div>
@@ -358,7 +360,7 @@ export function RegisterPage() {
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
         <Button
-          className="flex-1 gap-2 bg-gradient-to-r from-accent to-pink hover:opacity-90"
+          className="flex-1 gap-2 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90"
           disabled={registerMutation.isPending}
           onClick={handleProceedFromOverview}
         >
@@ -367,6 +369,10 @@ export function RegisterPage() {
           ) : existingRegistration ? (
             <>
               Continue <ArrowRight className="h-4 w-4" />
+            </>
+          ) : hackathon.minTeamSize === 1 ? (
+            <>
+              Register Now <ArrowRight className="h-4 w-4" />
             </>
           ) : (
             <>
@@ -389,7 +395,7 @@ export function RegisterPage() {
       <h2 className="text-xl font-bold text-text-primary">Team Setup</h2>
       <p className="text-sm text-text-muted">
         {hackathon.minTeamSize}–{hackathon.maxTeamSize} members required.
-        {hackathon.allowSoloRegistration && ' Solo participation is allowed.'}
+        {hackathon.minTeamSize === 1 && ' Solo participation is allowed.'}
       </p>
 
       {error && (
@@ -420,7 +426,7 @@ export function RegisterPage() {
           </div>
           <Button
             size="sm"
-            className="mt-4 gap-1.5 bg-gradient-to-r from-accent to-pink hover:opacity-90"
+            className="mt-4 gap-1.5 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90"
             onClick={() => {
               setSelectedTeamId(existingTeam.id);
               registerMutation.mutate();
@@ -473,7 +479,7 @@ export function RegisterPage() {
             <Button
               variant="outline"
               className="w-full gap-2"
-              onClick={() => navigate('/team')}
+              onClick={() => navigate('/team/invitations')}
             >
               <ExternalLink className="h-4 w-4" />
               View Pending Invitations
@@ -535,7 +541,7 @@ export function RegisterPage() {
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
         <Button
-          className="flex-1 gap-2 bg-gradient-to-r from-accent to-pink hover:opacity-90"
+          className="flex-1 gap-2 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90"
           disabled={!paymentOrder || paymentLoading}
           onClick={() => {
             if (paymentOrder) {
@@ -575,7 +581,7 @@ export function RegisterPage() {
         <p className="mt-2 text-sm text-text-muted max-w-md mx-auto">
           {existingRegistration?.status === 'PENDING_PAYMENT'
             ? 'We are waiting for your payment to be confirmed. This may take a moment.'
-            : hackathon.approvalRequired
+            : hackathon.registrationMode === 'APPROVAL_REQUIRED'
               ? 'Your registration is pending approval. You will be notified once approved.'
               : hasFee
                 ? 'Your payment is being processed. Your spot will be confirmed shortly.'
@@ -586,7 +592,7 @@ export function RegisterPage() {
           <div className="rounded-lg bg-bg-elevated px-4 py-2">
             Status: <span className="font-medium text-text-primary">{existingRegistration?.status ?? 'PENDING'}</span>
           </div>
-          {hackathon.approvalRequired && (
+          {hackathon.registrationMode === 'APPROVAL_REQUIRED' && (
             <div className="rounded-lg bg-bg-elevated px-4 py-2">
               Approval: <span className="font-medium text-warning">Pending</span>
             </div>
@@ -599,7 +605,7 @@ export function RegisterPage() {
             {hasFee && existingRegistration?.status === 'PENDING_PAYMENT' && (
               <li className="flex items-center gap-2">• Complete your payment to secure your spot</li>
             )}
-            {hackathon.approvalRequired && (
+            {hackathon.registrationMode === 'APPROVAL_REQUIRED' && (
               <li className="flex items-center gap-2">• Wait for admin approval</li>
             )}
             {hackathon.maxTeamSize > 1 && (

@@ -5,9 +5,9 @@ import { useState, useCallback } from 'react';
 import {
   LayoutDashboard, ArrowUpDown, FileText, Award, Megaphone, Settings,
   Plus, Pencil, Trash2, Save, Eye, ExternalLink,
-  Loader2, CheckCircle2, AlertTriangle, Users,
+  Loader2, CheckCircle2, Users,
   Calendar, DollarSign, Clock,
-  Trophy, Globe, Lock,
+  Trophy, Globe,
 } from 'lucide-react';
 import { hackathonService } from '@/services/hackathons';
 import { analyticsService } from '@/services/analytics';
@@ -24,6 +24,7 @@ import { ErrorState } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/utils/cn';
+import { unwrapData } from '@/utils/unwrap-data';
 import { useUIStore } from '@/stores/ui-store';
 import { StagePipeline } from '@/components/organizer/stage-pipeline';
 import { InlineEditor } from '@/components/organizer/inline-editor';
@@ -40,8 +41,13 @@ export function OrganizerWorkspacePage() {
   const { slug } = useParams<{ slug: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const tab = searchParams.get('tab') || 'overview';
   const [previewOpen, setPreviewOpen] = useState(false);
+
+  if (!slug || slug === 'undefined') {
+    return <ErrorState title="Invalid workspace" message="No hackathon selected." onRetry={() => navigate('/organize')} />;
+  }
 
   const setTab = useCallback((t: string) => {
     if (t === 'overview') setSearchParams({}, { replace: true });
@@ -50,13 +56,13 @@ export function OrganizerWorkspacePage() {
 
   const { data: hackathon, isLoading, isError, refetch } = useQuery({
     queryKey: ['hackathon', slug],
-    queryFn: () => hackathonService.getBySlug(slug!).then((r) => (r.data ?? r) as Hackathon),
+    queryFn: () => hackathonService.getBySlug(slug!).then((r) => unwrapData<Hackathon>(r)),
     enabled: !!slug,
   });
 
   const { data: stages } = useQuery({
     queryKey: ['hackathon-stages', hackathon?.id],
-    queryFn: () => hackathonService.stages.list(hackathon!.id).then((r) => (r.data ?? r) as StageConfig[]),
+    queryFn: () => hackathonService.stages.list(hackathon!.id).then((r) => unwrapData<StageConfig[]>(r)),
     enabled: !!hackathon?.id,
   });
 
@@ -149,12 +155,12 @@ function OverviewTab({ hackathon }: { hackathon: Hackathon }) {
 
   const { data: funnel } = useQuery({
     queryKey: ['analytics-funnel', hackathon.id],
-    queryFn: () => analyticsService.funnel(hackathon.id).then((r) => r.data ?? r) as Promise<AnalyticsFunnel>,
+    queryFn: () => analyticsService.funnel(hackathon.id).then((r) => unwrapData<AnalyticsFunnel>(r)),
   });
 
   const { data: registrations } = useQuery({
     queryKey: ['registrations', hackathon.id],
-    queryFn: () => registrationService.list({ hackathonId: hackathon.id }).then((r) => (r.data ?? r) as Registration[]),
+    queryFn: () => registrationService.list({ hackathonId: hackathon.id }).then((r) => unwrapData<Registration[]>(r)),
     enabled: !!hackathon.id,
   });
 
@@ -219,8 +225,10 @@ function OverviewTab({ hackathon }: { hackathon: Hackathon }) {
                 { label: 'Post Announcement', icon: Megaphone, href: '?tab=announcements' },
               ].map((action) => (
                 <Button key={action.label} variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => {
-                  if (action.href.startsWith('?')) window.location.hash = action.href;
-                  else navigate(action.href);
+                  if (action.href.startsWith('?')) {
+                    const t = action.href.replace('?tab=', '');
+                    t === 'overview' ? setSearchParams({}, { replace: true }) : setSearchParams({ tab: t }, { replace: true });
+                  } else navigate(action.href);
                 }}>
                   <action.icon className="h-4 w-4" />
                   {action.label}
@@ -235,8 +243,8 @@ function OverviewTab({ hackathon }: { hackathon: Hackathon }) {
               <div className="flex justify-between"><span className="text-text-muted">Status</span><Badge variant={hackathon.status === 'DRAFT' ? 'warning' : hackathon.status === 'PUBLISHED' ? 'success' : hackathon.status === 'ONGOING' ? 'accent' : 'neutral'} size="sm">{hackathon.status}</Badge></div>
               <div className="flex justify-between"><span className="text-text-muted">Mode</span><span className="font-medium">{hackathon.mode}</span></div>
               <div className="flex justify-between"><span className="text-text-muted">Fee</span><span className="font-medium">{hackathon.registrationFee === '0' || !hackathon.registrationFee ? 'Free' : `₹${parseInt(hackathon.registrationFee).toLocaleString()}`}</span></div>
-              <div className="flex justify-between"><span className="text-text-muted">Approval</span><Badge variant={hackathon.approvalRequired ? 'warning' : 'success'} size="sm">{hackathon.approvalRequired ? 'Required' : 'Auto'}</Badge></div>
-              <div className="flex justify-between"><span className="text-text-muted">Solo</span><span className="font-medium">{hackathon.allowSoloRegistration ? 'Allowed' : 'Team only'}</span></div>
+              <div className="flex justify-between"><span className="text-text-muted">Approval</span><Badge variant={hackathon.registrationMode === 'APPROVAL_REQUIRED' ? 'warning' : 'success'} size="sm">{hackathon.registrationMode === 'APPROVAL_REQUIRED' ? 'Required' : 'Auto'}</Badge></div>
+              <div className="flex justify-between"><span className="text-text-muted">Solo</span><span className="font-medium">{hackathon.minTeamSize === 1 ? 'Allowed' : 'Team only'}</span></div>
             </div>
           </Card>
         </div>
@@ -270,7 +278,7 @@ function StagesSection({ hackathon }: { hackathon: Hackathon }) {
 
   const { data: stages, isLoading } = useQuery({
     queryKey: ['hackathon-stages', hackathon.id],
-    queryFn: () => hackathonService.stages.list(hackathon.id).then((r) => (r.data ?? r) as StageConfig[]),
+    queryFn: () => hackathonService.stages.list(hackathon.id).then((r) => unwrapData<StageConfig[]>(r)),
   });
 
   const sorted = [...(stages ?? [])].sort((a, b) => a.order - b.order);
@@ -278,12 +286,12 @@ function StagesSection({ hackathon }: { hackathon: Hackathon }) {
   const createMut = useMutation({
     mutationFn: (d: Record<string, unknown>) => hackathonService.stages.create(hackathon.id, d),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['hackathon-stages'] }); setModalOpen(false); setForm(emptyStageForm); addToast({ type: 'success', title: 'Stage created' }); },
-    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: e.message }),
+    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: (e as { response?: { data?: { message?: string } } }).response?.data?.message ?? e.message }),
   });
   const updateMut = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) => hackathonService.stages.update(hackathon.id, id, data),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['hackathon-stages'] }); setModalOpen(false); setEditingStage(null); setForm(emptyStageForm); addToast({ type: 'success', title: 'Stage updated' }); },
-    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: e.message }),
+    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: (e as { response?: { data?: { message?: string } } }).response?.data?.message ?? e.message }),
   });
   const deleteMut = useMutation({
     mutationFn: (id: string) => hackathonService.stages.delete(hackathon.id, id),
@@ -314,10 +322,21 @@ function StagesSection({ hackathon }: { hackathon: Hackathon }) {
 
   const handleSave = () => {
     if (!form.name.trim()) { addToast({ type: 'error', title: 'Stage name is required' }); return; }
+    if (form.promotionType !== 'MANUAL_SELECTION' && !form.promotionValue.trim()) {
+      addToast({ type: 'error', title: 'Value is required for this promotion rule' }); return;
+    }
+
+    const pv = Number(form.promotionValue);
+    if (form.promotionType !== 'MANUAL_SELECTION' && (isNaN(pv) || pv < 1)) {
+      addToast({ type: 'error', title: 'Promotion value must be a positive number' }); return;
+    }
+    if (form.promotionType === 'MINIMUM_SCORE' && pv > 100) {
+      addToast({ type: 'error', title: 'Minimum score must be between 1 and 100' }); return;
+    }
 
     const promotionRule: PromotionRule = form.promotionType === 'MANUAL_SELECTION'
       ? { type: 'MANUAL_SELECTION' }
-      : { type: form.promotionType as 'TOP_N' | 'MINIMUM_SCORE', value: Number(form.promotionValue) };
+      : { type: form.promotionType as 'TOP_N' | 'MINIMUM_SCORE', value: pv };
 
     const data: Record<string, unknown> = {
       name: form.name, description: form.description,
@@ -370,7 +389,7 @@ function StagesSection({ hackathon }: { hackathon: Hackathon }) {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => { setModalOpen(false); setEditingStage(null); setForm(emptyStageForm); }}>Cancel</Button>
-            <Button className="bg-gradient-to-r from-accent to-pink hover:opacity-90 gap-2" onClick={handleSave} disabled={createMut.isPending || updateMut.isPending || !form.name.trim()}>
+            <Button className="bg-gradient-to-r from-accent to-accent-dim hover:opacity-90 gap-2" onClick={handleSave} disabled={createMut.isPending || updateMut.isPending || !form.name.trim()}>
               {(createMut.isPending || updateMut.isPending) && <Loader2 className="h-4 w-4 animate-spin" />}
               {editingStage ? 'Update Stage' : 'Create Stage'}
             </Button>
@@ -389,7 +408,7 @@ function RulesSection({ hackathon }: { hackathon: Hackathon }) {
 
   const { data: rules, isLoading } = useQuery({
     queryKey: ['hackathon-rules', hackathon.id],
-    queryFn: () => hackathonService.rules.list(hackathon.id).then((r) => (r.data ?? r) as Rule[]),
+    queryFn: () => hackathonService.rules.list(hackathon.id).then((r) => unwrapData<Rule[]>(r)),
   });
 
   const sorted = [...(rules ?? [])].sort((a, b) => a.order - b.order);
@@ -420,7 +439,7 @@ function RulesSection({ hackathon }: { hackathon: Hackathon }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-text-muted">{sorted.length} rule{sorted.length !== 1 && 's'}</p>
-        <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-pink hover:opacity-90" onClick={addRule} loading={createMut.isPending}><Plus className="h-4 w-4" /> Add Rule</Button>
+        <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90" onClick={addRule} loading={createMut.isPending}><Plus className="h-4 w-4" /> Add Rule</Button>
       </div>
 
       {sorted.length === 0 ? (
@@ -469,7 +488,7 @@ function PrizesSection({ hackathon }: { hackathon: Hackathon }) {
 
   const { data: prizes, isLoading } = useQuery({
     queryKey: ['hackathon-prizes', hackathon.id],
-    queryFn: () => hackathonService.prizes.list(hackathon.id).then((r) => (r.data ?? r) as Prize[]),
+    queryFn: () => hackathonService.prizes.list(hackathon.id).then((r) => unwrapData<Prize[]>(r)),
   });
 
   const sorted = [...(prizes ?? [])].sort((a, b) => a.position - b.position);
@@ -495,7 +514,7 @@ function PrizesSection({ hackathon }: { hackathon: Hackathon }) {
   const openCreate = () => { reset(); setModalOpen(true); };
   const openEdit = (p: Prize) => { setEditing(p); setForm({ position: p.position, title: p.title ?? '', amount: p.amount, description: p.description ?? '', category: '' }); setModalOpen(true); };
   const handleSave = () => {
-    const data = { position: Number(form.position), title: form.title, amount: form.amount, description: form.description };
+    const data = { position: Number(form.position), title: form.title, amount: Number(form.amount), description: form.description };
     if (editing) updateMut.mutate({ id: editing.id, data });
     else createMut.mutate(data);
   };
@@ -505,7 +524,7 @@ function PrizesSection({ hackathon }: { hackathon: Hackathon }) {
   return (
     <div className="space-y-4">
       {/* Prize pool summary */}
-      <Card className="bg-gradient-to-br from-accent/5 to-pink/5 border-accent/20 p-5">
+      <Card className="bg-gradient-to-br from-accent/5 to-accent-dim/5 border-accent/20 p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-sm text-text-muted">Total Prize Pool</p>
@@ -520,7 +539,7 @@ function PrizesSection({ hackathon }: { hackathon: Hackathon }) {
 
       <div className="flex items-center justify-between">
         <p className="text-sm text-text-muted">{sorted.length} prize{sorted.length !== 1 && 's'}</p>
-        <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-pink hover:opacity-90" onClick={openCreate}><Plus className="h-4 w-4" /> Add Prize</Button>
+        <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90" onClick={openCreate}><Plus className="h-4 w-4" /> Add Prize</Button>
       </div>
 
       {sorted.length === 0 ? (
@@ -564,7 +583,7 @@ function PrizesSection({ hackathon }: { hackathon: Hackathon }) {
           <Textarea label="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Prize details..." />
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => { setModalOpen(false); reset(); }}>Cancel</Button>
-            <Button className="bg-gradient-to-r from-accent to-pink hover:opacity-90" onClick={handleSave} disabled={!form.amount || createMut.isPending || updateMut.isPending}>
+            <Button className="bg-gradient-to-r from-accent to-accent-dim hover:opacity-90" onClick={handleSave} disabled={!form.amount || createMut.isPending || updateMut.isPending}>
               {editing ? 'Update' : 'Create'}
             </Button>
           </div>
@@ -585,32 +604,33 @@ function ProblemsSection({ hackathon }: { hackathon: Hackathon }) {
 
   const { data: problems, isLoading } = useQuery({
     queryKey: ['hackathon-problems', hackathon.id],
-    queryFn: () => hackathonService.problemStatements.list(hackathon.id).then((r) => (r.data ?? r) as ProblemStatement[]),
+    queryFn: () => hackathonService.problemStatements.list(hackathon.id).then((r) => unwrapData<ProblemStatement[]>(r)),
   });
 
+  const eMsg = (e: Error) => (e as { response?: { data?: { message?: string } } }).response?.data?.message ?? e.message;
   const createMut = useMutation({
     mutationFn: (d: Record<string, unknown>) => hackathonService.problemStatements.create(hackathon.id, d),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['hackathon-problems'] }); setModalOpen(false); reset(); addToast({ type: 'success', title: 'Problem created' }); },
-    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: e.message }),
+    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: eMsg(e) }),
   });
   const updateMut = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) => hackathonService.problemStatements.update(hackathon.id, id, data),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['hackathon-problems'] }); setModalOpen(false); reset(); addToast({ type: 'success', title: 'Problem updated' }); },
-    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: e.message }),
+    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: eMsg(e) }),
   });
   const deleteMut = useMutation({
     mutationFn: (id: string) => hackathonService.problemStatements.delete(hackathon.id, id),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['hackathon-problems'] }); addToast({ type: 'success', title: 'Problem deleted' }); },
-    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: e.message }),
+    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: eMsg(e) }),
   });
 
   const reset = () => setForm({ title: '', description: '', difficulty: 'MEDIUM', technologies: '', resources: '', isActive: true });
   const openCreate = () => { reset(); setModalOpen(true); };
   const openEdit = (p: ProblemStatement) => { setEditing(p); setForm({ title: p.title, description: p.description, difficulty: p.difficulty as 'EASY' | 'MEDIUM' | 'HARD', technologies: p.technologies.join(', '), resources: p.resources.join(', '), isActive: p.isActive }); setModalOpen(true); };
   const handleSave = () => {
-    const data = { title: form.title, description: form.description, difficulty: form.difficulty, isActive: form.isActive, technologies: form.technologies.split(',').map((s) => s.trim()).filter(Boolean), resources: form.resources.split(',').map((s) => s.trim()).filter(Boolean) };
-    if (editing) updateMut.mutate({ id: editing.id, data });
-    else createMut.mutate(data);
+    const common = { title: form.title, description: form.description, difficulty: form.difficulty, technologies: form.technologies.split(',').map((s) => s.trim()).filter(Boolean), resources: form.resources.split(',').map((s) => s.trim()).filter(Boolean) };
+    if (editing) updateMut.mutate({ id: editing.id, data: { ...common, isActive: form.isActive } });
+    else createMut.mutate(common);
   };
 
   const diffStyles: Record<string, string> = { EASY: 'text-success bg-success/5 border-success/20', MEDIUM: 'text-warning bg-warning/5 border-warning/20', HARD: 'text-error bg-error/5 border-error/20' };
@@ -621,7 +641,7 @@ function ProblemsSection({ hackathon }: { hackathon: Hackathon }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-text-muted">{(problems ?? []).length} problem{(problems ?? []).length !== 1 && 's'} · {(problems ?? []).filter((p) => p.isActive).length} visible</p>
-        <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-pink hover:opacity-90" onClick={openCreate}><Plus className="h-4 w-4" /> Add Problem</Button>
+        <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90" onClick={openCreate}><Plus className="h-4 w-4" /> Add Problem</Button>
       </div>
 
       {(problems ?? []).length === 0 ? (
@@ -675,7 +695,7 @@ function ProblemsSection({ hackathon }: { hackathon: Hackathon }) {
           <Input label="Resources (comma-separated)" value={form.resources} onChange={(e) => setForm({ ...form, resources: e.target.value })} placeholder="https://docs.example.com" />
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => { setModalOpen(false); reset(); }}>Cancel</Button>
-            <Button className="bg-gradient-to-r from-accent to-pink hover:opacity-90" onClick={handleSave} disabled={!form.title.trim() || !form.description.trim() || createMut.isPending || updateMut.isPending}>
+            <Button className="bg-gradient-to-r from-accent to-accent-dim hover:opacity-90" onClick={handleSave} disabled={!form.title.trim() || !form.description.trim() || createMut.isPending || updateMut.isPending}>
               {editing ? 'Update' : 'Create'}
             </Button>
           </div>
@@ -696,7 +716,7 @@ function AnnouncementsSection({ hackathon }: { hackathon: Hackathon }) {
 
   const { data: announcements, isLoading } = useQuery({
     queryKey: ['hackathon-announcements', hackathon.id],
-    queryFn: () => hackathonService.announcements.list(hackathon.id).then((r) => (r.data ?? r) as Announcement[]),
+    queryFn: () => hackathonService.announcements.list(hackathon.id).then((r) => unwrapData<Announcement[]>(r)),
   });
 
   const sorted = [...(announcements ?? [])].sort((a, b) => {
@@ -705,20 +725,21 @@ function AnnouncementsSection({ hackathon }: { hackathon: Hackathon }) {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
+  const eMsg = (e: Error) => (e as { response?: { data?: { message?: string } } }).response?.data?.message ?? e.message;
   const createMut = useMutation({
     mutationFn: (d: Record<string, unknown>) => hackathonService.announcements.create(hackathon.id, d),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['hackathon-announcements'] }); setModalOpen(false); reset(); addToast({ type: 'success', title: 'Announcement posted' }); },
-    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: e.message }),
+    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: eMsg(e) }),
   });
   const updateMut = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) => hackathonService.announcements.update(hackathon.id, id, data),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['hackathon-announcements'] }); setModalOpen(false); reset(); addToast({ type: 'success', title: 'Announcement updated' }); },
-    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: e.message }),
+    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: eMsg(e) }),
   });
   const deleteMut = useMutation({
     mutationFn: (id: string) => hackathonService.announcements.delete(hackathon.id, id),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['hackathon-announcements'] }); addToast({ type: 'success', title: 'Announcement deleted' }); },
-    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: e.message }),
+    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: eMsg(e) }),
   });
 
   const reset = () => setForm({ title: '', content: '', isPinned: false, scheduledAt: '', status: 'published' });
@@ -734,20 +755,22 @@ function AnnouncementsSection({ hackathon }: { hackathon: Hackathon }) {
     setModalOpen(true);
   };
   const handleSave = () => {
-    const data: Record<string, unknown> = {
-      title: form.title,
-      content: form.content,
-      isPinned: form.isPinned,
-      scheduledAt: form.status === 'scheduled' && form.scheduledAt ? new Date(form.scheduledAt).toISOString() : null,
-    };
-    if (form.status === 'draft') {
-      data.isActive = false;
-      data.scheduledAt = null;
+    if (editing) {
+      const data: Record<string, unknown> = {
+        title: form.title, content: form.content, isPinned: form.isPinned,
+        isActive: form.status !== 'draft',
+        scheduledAt: form.status === 'scheduled' && form.scheduledAt ? new Date(form.scheduledAt).toISOString() : null,
+      };
+      updateMut.mutate({ id: editing.id, data });
     } else {
-      data.isActive = true;
+      const data: Record<string, unknown> = {
+        title: form.title, content: form.content, isPinned: form.isPinned,
+      };
+      if (form.status === 'scheduled' && form.scheduledAt) {
+        data.scheduledAt = new Date(form.scheduledAt).toISOString();
+      }
+      createMut.mutate(data);
     }
-    if (editing) updateMut.mutate({ id: editing.id, data });
-    else createMut.mutate(data);
   };
 
   if (isLoading) return <Skeleton className="h-64 rounded-xl" />;
@@ -756,7 +779,7 @@ function AnnouncementsSection({ hackathon }: { hackathon: Hackathon }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-text-muted">{sorted.length} announcement{sorted.length !== 1 && 's'}</p>
-        <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-pink hover:opacity-90" onClick={openCreate}><Plus className="h-4 w-4" /> New Announcement</Button>
+        <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90" onClick={openCreate}><Plus className="h-4 w-4" /> New Announcement</Button>
       </div>
 
       {sorted.length === 0 ? (
@@ -818,7 +841,7 @@ function AnnouncementsSection({ hackathon }: { hackathon: Hackathon }) {
           )}
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => { setModalOpen(false); reset(); }}>Cancel</Button>
-            <Button className="bg-gradient-to-r from-accent to-pink hover:opacity-90" onClick={handleSave} disabled={!form.title.trim() || !form.content.trim() || createMut.isPending || updateMut.isPending}>
+            <Button className="bg-gradient-to-r from-accent to-accent-dim hover:opacity-90" onClick={handleSave} disabled={!form.title.trim() || !form.content.trim() || createMut.isPending || updateMut.isPending}>
               {editing ? 'Update' : form.status === 'draft' ? 'Save Draft' : form.status === 'scheduled' ? 'Schedule' : 'Publish'}
             </Button>
           </div>
@@ -832,76 +855,80 @@ function AnnouncementsSection({ hackathon }: { hackathon: Hackathon }) {
 
 function SettingsSection({ hackathon, onUpdate }: { hackathon: Hackathon; onUpdate: () => void }) {
   const addToast = useUIStore((s) => s.addToast);
-  const [form, setForm] = useState({
+  const persistKey = `settings_form_${hackathon.id}`;
+  const saved = (() => { try { const d = sessionStorage.getItem(persistKey); return d ? JSON.parse(d) : null; } catch { return null; } })();
+  const [form, setForm] = useState(saved ?? {
     title: hackathon.title,
     description: hackathon.description,
     mode: hackathon.mode,
-    location: hackathon.location ?? '',
-    coverImage: hackathon.coverImage ?? '',
+    meetingLink: hackathon.meetingLink ?? '',
+    banner: hackathon.banner ?? '',
     startDate: hackathon.startDate.slice(0, 16),
     endDate: hackathon.endDate.slice(0, 16),
-    registrationStartDate: hackathon.registrationStartDate.slice(0, 16),
-    registrationEndDate: hackathon.registrationEndDate.slice(0, 16),
+    registrationDeadline: hackathon.registrationDeadline.slice(0, 16),
     registrationFee: hackathon.registrationFee,
     maxTeamSize: hackathon.maxTeamSize,
     minTeamSize: hackathon.minTeamSize,
-    allowSoloRegistration: hackathon.allowSoloRegistration,
-    approvalRequired: hackathon.approvalRequired,
+    registrationMode: hackathon.registrationMode,
+    status: hackathon.status as string,
   });
+
+  const setFormPersist = useCallback((updater: typeof form | ((prev: typeof form) => typeof form)) => {
+    setForm((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      try { sessionStorage.setItem(persistKey, JSON.stringify(next)); } catch { /* noop */ }
+      return next;
+    });
+  }, [persistKey]);
+
+  const eMsg = (e: Error) => (e as { response?: { data?: { message?: string } } }).response?.data?.message ?? e.message;
 
   const updateMut = useMutation({
     mutationFn: (d: Record<string, unknown>) => hackathonService.update(hackathon.id, d),
-    onSuccess: () => { addToast({ type: 'success', title: 'Settings saved' }); onUpdate(); },
-    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: e.message }),
-  });
-  const publishMut = useMutation({
-    mutationFn: () => hackathonService.publish(hackathon.id),
-    onSuccess: () => { addToast({ type: 'success', title: 'Hackathon published!' }); onUpdate(); },
-    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: e.message }),
-  });
-  const archiveMut = useMutation({
-    mutationFn: () => hackathonService.archive(hackathon.id),
-    onSuccess: () => { addToast({ type: 'success', title: 'Hackathon archived' }); onUpdate(); },
-    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: e.message }),
+    onSuccess: () => { try { sessionStorage.removeItem(persistKey); } catch { /* noop */ } addToast({ type: 'success', title: 'Settings saved' }); onUpdate(); },
+    onError: (e: Error) => addToast({ type: 'error', title: 'Failed', message: eMsg(e) }),
   });
 
   const handleSave = () => {
     const data: Record<string, unknown> = {
       title: form.title, description: form.description,
-      mode: form.mode, location: form.location || null, coverImage: form.coverImage || null,
+      mode: form.mode, meetingLink: form.meetingLink || null, banner: form.banner || null,
       startDate: new Date(form.startDate).toISOString(), endDate: new Date(form.endDate).toISOString(),
-      registrationStartDate: new Date(form.registrationStartDate).toISOString(),
-      registrationEndDate: new Date(form.registrationEndDate).toISOString(),
+      registrationDeadline: new Date(form.registrationDeadline).toISOString(),
       registrationFee: form.registrationFee,
       maxTeamSize: Number(form.maxTeamSize), minTeamSize: Number(form.minTeamSize),
-      allowSoloRegistration: form.allowSoloRegistration, approvalRequired: form.approvalRequired,
+      registrationMode: form.registrationMode,
+      status: form.status,
     };
     updateMut.mutate(data);
   };
-
-  const showPublish = hackathon.status === 'DRAFT';
-  const showArchive = hackathon.status === 'PUBLISHED' || hackathon.status === 'ONGOING';
 
   return (
     <div className="space-y-6 max-w-3xl">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <p className="text-sm text-text-muted">Configure your hackathon settings</p>
         <div className="flex gap-2">
-          {showPublish && (
-            <Button size="sm" className="gap-1.5 bg-green-600 hover:bg-green-700" onClick={() => { if (confirm('Publish this hackathon? It will be visible to participants.')) publishMut.mutate(); }} disabled={publishMut.isPending}>
-              {publishMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Globe className="h-4 w-4" />} Publish
-            </Button>
-          )}
-          {showArchive && (
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => { if (confirm('Archive this hackathon? This will hide it.')) archiveMut.mutate(); }}>
-              <Lock className="h-4 w-4" /> Archive
-            </Button>
-          )}
-          <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-pink hover:opacity-90" onClick={handleSave} disabled={updateMut.isPending}>
+          <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90" onClick={handleSave} disabled={updateMut.isPending}>
             {updateMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save
           </Button>
         </div>
       </div>
+
+      {/* Status */}
+      <Card className="p-5">
+        <h3 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
+          <Globe className="h-4 w-4 text-accent" /> Status
+        </h3>
+        <div className="space-y-4">
+          <Select label="Hackathon Status" value={form.status} onChange={(e) => setFormPersist({ ...form, status: e.target.value })} options={[
+            { label: 'Draft', value: 'DRAFT' },
+            { label: 'Published', value: 'PUBLISHED' },
+          ]} />
+          <p className="text-xs text-text-muted">
+            {form.status === 'DRAFT' ? 'Only you can see this hackathon. Publish it when ready.' : 'Published hackathons are visible to participants and can receive registrations.'}
+          </p>
+        </div>
+      </Card>
 
       {/* Branding */}
       <Card className="p-5">
@@ -909,12 +936,12 @@ function SettingsSection({ hackathon, onUpdate }: { hackathon: Hackathon; onUpda
           <Settings className="h-4 w-4 text-accent" /> Branding & Description
         </h3>
         <div className="space-y-4">
-          <Input label="Hackathon Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. HACKATHON 2026" />
-          <Textarea label="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="min-h-[100px]" placeholder="Describe your hackathon..." />
-          <Input label="Cover Image URL" value={form.coverImage} onChange={(e) => setForm({ ...form, coverImage: e.target.value })} placeholder="https://images.example.com/banner.jpg" helperText="Shown on the landing page and share cards" />
-          {form.coverImage && (
+          <Input label="Hackathon Title" value={form.title} onChange={(e) => setFormPersist({ ...form, title: e.target.value })} placeholder="e.g. HACKATHON 2026" />
+          <Textarea label="Description" value={form.description} onChange={(e) => setFormPersist({ ...form, description: e.target.value })} className="min-h-[100px]" placeholder="Describe your hackathon..." />
+          <Input label="Banner Image URL" value={form.banner} onChange={(e) => setFormPersist({ ...form, banner: e.target.value })} placeholder="https://images.example.com/banner.jpg" helperText="Shown on the landing page and share cards" />
+          {form.banner && (
             <div className="h-32 w-full overflow-hidden rounded-lg border border-border bg-bg-elevated">
-              <img src={form.coverImage} alt="Cover preview" className="h-full w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+              <img src={form.banner} alt="Cover preview" className="h-full w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
             </div>
           )}
         </div>
@@ -927,12 +954,11 @@ function SettingsSection({ hackathon, onUpdate }: { hackathon: Hackathon; onUpda
         </h3>
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Input label="Hackathon Start" type="datetime-local" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} />
-            <Input label="Hackathon End" type="datetime-local" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} />
+            <Input label="Hackathon Start" type="datetime-local" value={form.startDate} onChange={(e) => setFormPersist({ ...form, startDate: e.target.value })} />
+            <Input label="Hackathon End" type="datetime-local" value={form.endDate} onChange={(e) => setFormPersist({ ...form, endDate: e.target.value })} />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Input label="Registration Opens" type="datetime-local" value={form.registrationStartDate} onChange={(e) => setForm({ ...form, registrationStartDate: e.target.value })} />
-            <Input label="Registration Closes" type="datetime-local" value={form.registrationEndDate} onChange={(e) => setForm({ ...form, registrationEndDate: e.target.value })} />
+            <Input label="Registration Deadline" type="datetime-local" value={form.registrationDeadline} onChange={(e) => setFormPersist({ ...form, registrationDeadline: e.target.value })} />
           </div>
         </div>
       </Card>
@@ -944,44 +970,27 @@ function SettingsSection({ hackathon, onUpdate }: { hackathon: Hackathon; onUpda
         </h3>
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-3">
-            <Input label="Min Team Size" type="number" value={form.minTeamSize} onChange={(e) => setForm({ ...form, minTeamSize: Number(e.target.value) })} min={1} />
-            <Input label="Max Team Size" type="number" value={form.maxTeamSize} onChange={(e) => setForm({ ...form, maxTeamSize: Number(e.target.value) })} min={1} />
-            <Input label="Fee (₹)" type="number" value={form.registrationFee} onChange={(e) => setForm({ ...form, registrationFee: e.target.value })} min={0} placeholder="0 = free" />
+            <Input label="Min Team Size" type="number" value={form.minTeamSize} onChange={(e) => setFormPersist({ ...form, minTeamSize: Number(e.target.value) })} min={1} />
+            <Input label="Max Team Size" type="number" value={form.maxTeamSize} onChange={(e) => setFormPersist({ ...form, maxTeamSize: Number(e.target.value) })} min={1} />
+            <Input label="Fee (₹)" type="number" value={form.registrationFee} onChange={(e) => setFormPersist({ ...form, registrationFee: e.target.value })} min={0} placeholder="0 = free" />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="ss" checked={form.allowSoloRegistration} onChange={(e) => setForm({ ...form, allowSoloRegistration: e.target.checked })} className="rounded border-border" />
-              <label htmlFor="ss" className="text-sm text-text-primary">Allow solo registration</label>
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="ar" checked={form.approvalRequired} onChange={(e) => setForm({ ...form, approvalRequired: e.target.checked })} className="rounded border-border" />
-              <label htmlFor="ar" className="text-sm text-text-primary">Manual approval required</label>
-            </div>
+            <Select label="Registration Mode" value={form.registrationMode} onChange={(e) => setFormPersist({ ...form, registrationMode: e.target.value as 'OPEN' | 'APPROVAL_REQUIRED' })} options={[
+              { label: 'Open (auto-approve)', value: 'OPEN' },
+              { label: 'Approval Required', value: 'APPROVAL_REQUIRED' },
+            ]} />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Select label="Mode" value={form.mode} onChange={(e) => setForm({ ...form, mode: e.target.value as 'ONLINE' | 'OFFLINE' | 'HYBRID' })} options={[
+            <Select label="Mode" value={form.mode} onChange={(e) => setFormPersist({ ...form, mode: e.target.value as 'ONLINE' | 'OFFLINE' | 'HYBRID' })} options={[
               { label: 'Online', value: 'ONLINE' },
               { label: 'Offline', value: 'OFFLINE' },
               { label: 'Hybrid', value: 'HYBRID' },
             ]} />
-            <Input label="Location / Platform" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder={form.mode === 'ONLINE' ? 'e.g. Discord, Zoom link' : 'Physical venue'} />
+            <Input label="Meeting Link" value={form.meetingLink} onChange={(e) => setFormPersist({ ...form, meetingLink: e.target.value })} placeholder={form.mode === 'ONLINE' ? 'e.g. Discord, Zoom link' : 'Physical venue'} />
           </div>
         </div>
       </Card>
-
-      {/* Danger zone */}
-      {hackathon.status === 'DRAFT' && (
-        <Card className="border-error/30 p-5">
-          <h3 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-error" /> Danger Zone
-          </h3>
-          <p className="text-sm text-text-muted mb-3">Once published, this hackathon becomes visible to participants and can receive registrations.</p>
-          <Button className="bg-gradient-to-r from-accent to-pink hover:opacity-90 gap-2" onClick={() => { if (confirm('Ready to publish?')) publishMut.mutate(); }}>
-            <Globe className="h-4 w-4" /> Publish Hackathon
-          </Button>
-        </Card>
-      )}
     </div>
   );
 }

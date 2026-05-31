@@ -30,14 +30,14 @@ const actionIcons: Record<string, React.ElementType> = {
 };
 
 const actionGradients: Record<string, string> = {
-  BROWSE_HACKATHONS: 'from-accent/20 to-purple-500/10',
+  BROWSE_HACKATHONS: 'from-accent/20 to-navy-dark/10',
   COMPLETE_PAYMENT: 'from-warning/20 to-orange-500/10',
-  AWAITING_APPROVAL: 'from-accent/10 to-purple-500/10',
+  AWAITING_APPROVAL: 'from-accent/10 to-navy-dark/10',
   FORM_TEAM: 'from-accent/20 to-pink/10',
   JOIN_TEAM: 'from-accent/20 to-pink/10',
-  LOCK_TEAM: 'from-accent/15 to-purple-500/10',
+  LOCK_TEAM: 'from-accent/15 to-navy-dark/10',
   SUBMIT_STAGE: 'from-accent/20 to-pink/10',
-  AWAITING_REVIEW: 'from-accent/10 to-purple-500/10',
+  AWAITING_REVIEW: 'from-accent/10 to-navy-dark/10',
   START_NEXT_STAGE: 'from-accent/20 to-pink/15',
   COMPLETED: 'from-success/20 to-green-500/10',
 };
@@ -57,13 +57,13 @@ export function NextActionCard({ action }: NextActionCardProps) {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <Card className={`relative overflow-hidden border-accent/30 bg-gradient-to-br ${actionGradients[action.type] ?? 'from-accent/10 to-purple-500/10'}`}>
+      <Card className={`relative overflow-hidden border-accent/30 bg-gradient-to-br ${actionGradients[action.type] ?? 'from-accent/10 to-navy-dark/10'}`}>
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-accent/10 blur-[60px]" />
         </div>
 
         <div className="relative flex items-start gap-4 p-5">
-          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-pink`}>
+          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-accent-dim`}>
             <Icon className="h-6 w-6 text-white" />
           </div>
 
@@ -83,7 +83,7 @@ export function NextActionCard({ action }: NextActionCardProps) {
             {action.href && (
               <Button
                 size="sm"
-                className="mt-3 gap-1.5 bg-gradient-to-r from-accent to-pink hover:opacity-90"
+                className="mt-3 gap-1.5 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90"
                 onClick={() => window.location.href = action.href!}
               >
                 {action.type === 'SUBMIT_STAGE' ? 'Go to Submission' : 'Get Started'}

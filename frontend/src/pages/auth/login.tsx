@@ -34,8 +34,7 @@ export function LoginPage() {
     try {
       setError('');
       const res = await authService.login(data);
-      localStorage.setItem('accessToken', res.data.accessToken);
-      login(res.data.user, res.data.accessToken);
+      login(res.data.user, res.data.accessToken, res.data.refreshToken);
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid email or password');

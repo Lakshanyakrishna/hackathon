@@ -9,13 +9,14 @@ import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
 import { Loading } from '@/components/shared/loading';
 import type { TeamInvitation } from '@/types/team';
+import { unwrapData } from '@/utils/unwrap-data';
 
 export function PendingInvitationsPage() {
   const queryClient = useQueryClient();
 
   const { data: invitations, isLoading, isError, refetch } = useQuery({
     queryKey: ['pending-invitations'],
-    queryFn: () => teamService.invitations.pending().then((r) => (r.data ?? r) as TeamInvitation[]),
+    queryFn: () => teamService.invitations.pending().then((r) => unwrapData<TeamInvitation[]>(r)),
     refetchInterval: 30_000,
   });
 
@@ -114,7 +115,7 @@ export function PendingInvitationsPage() {
                       </Button>
                       <Button
                         size="sm"
-                        className="gap-1 bg-gradient-to-r from-accent to-pink hover:opacity-90"
+                        className="gap-1 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90"
                         disabled={acceptMutation.isPending}
                         onClick={() => acceptMutation.mutate(inv.id)}
                       >

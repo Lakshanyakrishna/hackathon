@@ -24,6 +24,7 @@ import { useUIStore } from '@/stores/ui-store';
 import type { Submission } from '@/types/submission';
 import type { Team } from '@/types/team';
 import type { StageConfig, EvaluationCriterion, RequirementField } from '@/types/hackathon';
+import { unwrapData } from '@/utils/unwrap-data';
 
 const STORAGE_KEY_PREFIX = 'hackhub-submission-draft-';
 
@@ -75,26 +76,26 @@ export function SubmissionEditPage() {
 
   const { data: stage } = useQuery({
     queryKey: ['stage', hackathonId, stageId],
-    queryFn: () => hackathonService.stages.get(hackathonId!, stageId!).then((r) => (r.data ?? r) as StageConfig),
+    queryFn: () => hackathonService.stages.get(hackathonId!, stageId!).then((r) => unwrapData<StageConfig>(r)),
     enabled: isNew && !!hackathonId && !!stageId,
   });
 
   const { data: team } = useQuery({
     queryKey: ['team', teamId],
-    queryFn: () => teamService.getById(teamId!).then((r) => (r.data ?? r) as Team),
+    queryFn: () => teamService.getById(teamId!).then((r) => unwrapData<Team>(r)),
     enabled: isNew && !!teamId,
   });
 
   const { data: submission, isLoading, isError, refetch } = useQuery({
     queryKey: ['submission', id],
-    queryFn: () => submissionService.getById(id!).then((r) => (r.data ?? r) as Submission),
+    queryFn: () => submissionService.getById(id!).then((r) => unwrapData<Submission>(r)),
     enabled: !isNew,
     retry: 1,
   });
 
   const { data: versions } = useQuery({
     queryKey: ['submission-versions', id],
-    queryFn: () => submissionService.versions(id!).then((r) => (r.data ?? r) as Submission[]),
+    queryFn: () => submissionService.versions(id!).then((r) => unwrapData<Submission[]>(r)),
     enabled: !isNew,
   });
 
@@ -409,7 +410,7 @@ export function SubmissionEditPage() {
                 </Button>
                 <Button
                   size="lg"
-                  className="flex-1 gap-2 bg-gradient-to-r from-accent to-pink hover:opacity-90"
+                  className="flex-1 gap-2 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90"
                   onClick={() => setShowPreview(true)}
                 >
                   <Eye className="h-4 w-4" />

@@ -12,9 +12,9 @@ export const registrationService = {
   create: (data: { hackathonId: string; teamId?: string }) =>
     api.post<Registration>('/registrations', data),
 
-  approve: (id: string) => api.patch(`/registrations/${id}/approve`),
+  approve: (id: string) => api.patch(`/registrations/${id}/approve`, { status: 'APPROVED' }),
 
-  reject: (id: string) => api.patch(`/registrations/${id}/reject`),
+  reject: (id: string) => api.patch(`/registrations/${id}/reject`, { status: 'REJECTED' }),
 
   cancel: (id: string) => api.delete(`/registrations/${id}`),
 

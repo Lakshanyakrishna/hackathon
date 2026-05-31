@@ -12,7 +12,7 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'super-secret-key',
       signOptions: {
-        expiresIn: process.env.JWT_EXPIRATION || '15m',
+        expiresIn: process.env.JWT_EXPIRATION || '2h',
       },
     }),
   ],

@@ -13,7 +13,7 @@ export function PublicLayout() {
     <div className="min-h-screen bg-bg-base">
       <nav className="sticky top-0 z-40 border-b border-border bg-bg-base/80 backdrop-blur-lg">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-          <Link to="/" className="text-xl font-bold bg-gradient-to-r from-accent to-pink bg-clip-text text-transparent">
+          <Link to="/" className="text-xl font-bold bg-gradient-to-r from-accent to-accent-dim bg-clip-text text-transparent">
             HackHub
           </Link>
 
@@ -89,7 +89,7 @@ export function PublicLayout() {
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-              <h3 className="text-lg font-semibold bg-gradient-to-r from-accent to-pink bg-clip-text text-transparent">HackHub</h3>
+              <h3 className="text-lg font-semibold bg-gradient-to-r from-accent to-accent-dim bg-clip-text text-transparent">HackHub</h3>
               <p className="mt-2 text-sm text-text-muted">Build. Ship. Win. The ultimate hackathon platform.</p>
             </div>
             <div>

@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { ErrorState } from '@/components/shared/error-state';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/utils/cn';
+import { unwrapData } from '@/utils/unwrap-data';
 import type { Submission } from '@/types/submission';
 
 export function SubmissionDetailPage() {
@@ -21,14 +22,14 @@ export function SubmissionDetailPage() {
 
   const { data: submission, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['submission', id],
-    queryFn: () => submissionService.getById(id!).then((r) => (r.data ?? r) as Submission),
+    queryFn: () => submissionService.getById(id!).then((r) => unwrapData<Submission>(r)),
     enabled: !!id,
     retry: 1,
   });
 
   const { data: versions } = useQuery({
     queryKey: ['submission-versions', id],
-    queryFn: () => submissionService.versions(id!).then((r) => (r.data ?? r) as Submission[]),
+    queryFn: () => submissionService.versions(id!).then((r) => unwrapData<Submission[]>(r)),
     enabled: !!id,
   });
 

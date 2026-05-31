@@ -6,25 +6,19 @@ const features = [
     icon: Layers,
     title: 'Dynamic Stages',
     description: 'Multi-stage hackathons with configurable requirements, evaluation criteria, and automated promotion rules.',
-    gradient: 'from-accent to-purple-500',
-  },
-  {
-    icon: Users2,
-    title: 'Team Collaboration',
-    description: 'Create teams, invite members, and manage submissions together. Built-in team management and communication.',
-    gradient: 'from-purple-500 to-pink',
+    gradient: 'from-accent to-teal-light',
   },
   {
     icon: BarChart3,
     title: 'Powerful Analytics',
     description: 'Track registrations, submissions, and team performance with detailed funnel metrics and conversion rates.',
-    gradient: 'from-pink to-red-500',
+    gradient: 'from-navy-dark to-accent',
   },
   {
     icon: Zap,
     title: 'Real-time Updates',
     description: 'Instant notifications for submissions, promotions, scores, and announcements. Stay in the loop.',
-    gradient: 'from-red-500 to-accent',
+    gradient: 'from-accent to-teal-light',
   },
 ];
 

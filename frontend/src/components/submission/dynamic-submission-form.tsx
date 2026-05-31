@@ -137,7 +137,7 @@ export function DynamicSubmissionForm({
         <div
           className={cn(
             'h-full rounded-full transition-all duration-500',
-            hasErrors ? 'bg-error' : 'bg-gradient-to-r from-accent to-pink',
+            hasErrors ? 'bg-error' : 'bg-gradient-to-r from-accent to-accent-dim',
           )}
           style={{ width: `${(completedCount / requirements.length) * 100}%` }}
         />

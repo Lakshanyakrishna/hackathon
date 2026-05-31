@@ -120,7 +120,7 @@ export function SubmissionPreview({
           Back to Edit
         </Button>
         <Button
-          className="flex-1 gap-2 bg-gradient-to-r from-accent to-pink hover:opacity-90"
+          className="flex-1 gap-2 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90"
           disabled={!allRequiredFilled || isSubmitting}
           onClick={onConfirm}
         >

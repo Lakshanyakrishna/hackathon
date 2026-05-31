@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import axios from 'axios';
 import { router } from './routes';
 import { ToastContainer } from './components/ui/toast';
 import { useAuthStore } from './stores/auth-store';
 import { authService } from './services/auth';
+import { API_BASE } from '@/utils/constants';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,19 +21,28 @@ const queryClient = new QueryClient({
 function AuthInitializer({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const init = async () => {
-      const token = localStorage.getItem('accessToken');
-      if (token) {
-        try {
-          useAuthStore.getState().setAccessToken(token);
-          const res = await authService.me();
-          useAuthStore.getState().login(res.data, token);
-        } catch {
-          localStorage.removeItem('accessToken');
-          useAuthStore.getState().logout();
-        }
-      } else {
-        useAuthStore.getState().setLoading(false);
+      const store = useAuthStore.getState();
+      if (!store.accessToken) {
+        store.setLoading(false);
+        return;
       }
+      try {
+        const res = await authService.me();
+        store.setUser(res.data);
+      } catch {
+        try {
+          const rt = store.refreshToken;
+          if (!rt) throw new Error('No refresh token');
+          const ref = await axios.post(`${API_BASE}/auth/refresh`, {}, { headers: { Authorization: `Bearer ${rt}` } });
+          store.setAccessToken(ref.data.accessToken);
+          if (ref.data.refreshToken) store.setRefreshToken(ref.data.refreshToken);
+          const me = await authService.me();
+          store.setUser(me.data);
+        } catch {
+          store.logout();
+        }
+      }
+      store.setLoading(false);
     };
     init();
   }, []);

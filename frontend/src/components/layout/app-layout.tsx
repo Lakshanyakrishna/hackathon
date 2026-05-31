@@ -13,7 +13,9 @@ import { cn } from '@/utils/cn';
 import { useAuthStore } from '@/stores/auth-store';
 import { useIsMobile } from '@/hooks/use-media-query';
 import { Avatar } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { useQuery } from '@tanstack/react-query';
+import { authService } from '@/services/auth';
+import { notificationService } from '@/services/notifications';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -29,11 +31,14 @@ export function AppLayout() {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
 
+  const { data: unreadCount } = useQuery({
+    queryKey: ['notifications-unread'],
+    queryFn: () => notificationService.unreadCount().then(r => (r.data as { unreadCount: number }).unreadCount),
+    refetchInterval: 30000,
+  });
+
   const handleLogout = async () => {
-    try {
-      await fetch('/api/v1/auth/logout', { method: 'POST' });
-    } catch { /* ignore */ }
-    localStorage.removeItem('accessToken');
+    try { await authService.logout(); } catch { /* ignore */ }
     logout();
     navigate('/');
   };
@@ -48,7 +53,7 @@ export function AppLayout() {
         )}
       >
         <div className="flex h-16 items-center justify-between border-b border-border px-4">
-          <Link to="/" className={cn('text-lg font-bold bg-gradient-to-r from-accent to-pink bg-clip-text text-transparent', !sidebarOpen && 'lg:hidden')}>
+          <Link to="/" className={cn('text-lg font-bold bg-gradient-to-r from-accent to-accent-dim bg-clip-text text-transparent', !sidebarOpen && 'lg:hidden')}>
             H
           </Link>
           <button
@@ -115,7 +120,9 @@ export function AppLayout() {
           <div className="flex items-center gap-3 ml-auto">
             <Link to="/notifications" className="relative rounded-md p-1.5 text-text-muted hover:text-text-primary">
               <Bell className="h-5 w-5" />
-              <Badge variant="error" size="sm" className="absolute -top-0.5 -right-0.5">3</Badge>
+              {unreadCount != null && unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-error px-1 text-[10px] font-medium text-white">{unreadCount > 99 ? '99+' : unreadCount}</span>
+              )}
             </Link>
             <Avatar name={user?.name} size="sm" src={user?.avatar} />
           </div>

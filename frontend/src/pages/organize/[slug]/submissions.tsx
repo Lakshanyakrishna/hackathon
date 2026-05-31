@@ -16,6 +16,7 @@ import { ErrorState } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/utils/cn';
+import { unwrapData } from '@/utils/unwrap-data';
 import type { Submission } from '@/types/submission';
 import type { Hackathon, StageConfig } from '@/types/hackathon';
 
@@ -27,13 +28,13 @@ export function SubmissionsPage() {
 
   const { data: hackathon } = useQuery({
     queryKey: ['hackathon', slug],
-    queryFn: () => hackathonService.getBySlug(slug!).then((r) => (r.data ?? r) as Hackathon),
+    queryFn: () => hackathonService.getBySlug(slug!).then((r) => unwrapData<Hackathon>(r)),
     enabled: !!slug,
   });
 
   const { data: stages } = useQuery({
     queryKey: ['hackathon-stages', hackathon?.id],
-    queryFn: () => hackathonService.stages.list(hackathon!.id).then((r) => (r.data ?? r) as StageConfig[]),
+    queryFn: () => hackathonService.stages.list(hackathon!.id).then((r) => unwrapData<StageConfig[]>(r)),
     enabled: !!hackathon?.id,
   });
 
@@ -43,7 +44,7 @@ export function SubmissionsPage() {
       const params: Record<string, string> = {};
       if (stageFilter !== 'all' && stageFilter) params.stageId = stageFilter;
       if (search) params.search = search;
-      return submissionService.list(params).then((r) => (r.data ?? r) as Submission[]);
+      return submissionService.list(params).then((r) => unwrapData<Submission[]>(r));
     },
     enabled: !!hackathon?.id,
   });
@@ -145,7 +146,7 @@ export function SubmissionsPage() {
               </div>
               <div className="h-1.5 w-full rounded-full bg-bg-elevated">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-accent to-pink transition-all"
+                  className="h-full rounded-full bg-gradient-to-r from-accent to-accent-dim transition-all"
                   style={{ width: `${stagePct}%` }}
                 />
               </div>

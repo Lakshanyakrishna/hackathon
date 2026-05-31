@@ -12,7 +12,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { HackathonMode, RegistrationMode } from '@prisma/client';
+import { HackathonMode, RegistrationMode, HackathonStatus } from '@prisma/client';
 
 export class StageConfigDto {
   @ApiProperty()
@@ -106,4 +106,14 @@ export class CreateHackathonDto {
   @ValidateNested({ each: true })
   @Type(() => StageConfigDto)
   stages?: StageConfigDto[];
+
+  @ApiPropertyOptional({ enum: HackathonStatus, default: 'DRAFT' })
+  @IsOptional()
+  @IsEnum(HackathonStatus)
+  status?: HackathonStatus;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDateString()
+  scheduledAt?: string;
 }

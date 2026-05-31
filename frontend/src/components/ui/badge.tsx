@@ -15,7 +15,7 @@ const badgeVariants = cva(
         neutral: 'bg-bg-elevated text-text-muted',
         accent: 'bg-accent/10 text-accent',
         pink: 'bg-pink/10 text-pink',
-        gradient: 'bg-gradient-to-r from-accent to-pink text-white',
+        gradient: 'bg-accent text-white',
       },
       size: {
         xs: 'px-1.5 py-0.5 text-[10px]',

@@ -1,5 +1,6 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Shield, Users, LayoutDashboard, LogOut } from 'lucide-react';
+import { authService } from '@/services/auth';
 import { cn } from '@/utils/cn';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -14,8 +15,7 @@ export function AdminLayout() {
   const location = useLocation();
 
   const handleLogout = async () => {
-    try { await fetch('/api/v1/auth/logout', { method: 'POST' }); } catch { /* ignore */ }
-    localStorage.removeItem('accessToken');
+    try { await authService.logout(); } catch { /* ignore */ }
     logout();
     navigate('/');
   };

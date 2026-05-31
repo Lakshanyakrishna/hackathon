@@ -19,6 +19,7 @@ import { EmptyState } from '@/components/shared/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthStore } from '@/stores/auth-store';
 import type { Team, TeamInvitation } from '@/types/team';
+import { unwrapData } from '@/utils/unwrap-data';
 
 export function TeamDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -31,14 +32,14 @@ export function TeamDetailPage() {
 
   const { data: team, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['team', id],
-    queryFn: () => teamService.getById(id!).then((r) => (r.data ?? r) as Team),
+    queryFn: () => teamService.getById(id!).then((r) => unwrapData<Team>(r)),
     enabled: !!id,
     retry: 1,
   });
 
   const { data: pendingInvitations, refetch: refetchInvitations } = useQuery({
     queryKey: ['team-invitations', id],
-    queryFn: () => teamService.invitations.teamPending(id!).then((r) => (r.data ?? r) as TeamInvitation[]),
+    queryFn: () => teamService.invitations.teamPending(id!).then((r) => unwrapData<TeamInvitation[]>(r)),
     enabled: !!id,
   });
 

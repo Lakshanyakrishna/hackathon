@@ -22,6 +22,7 @@ import { Card } from '@/components/ui/card';
 import { ErrorState } from '@/components/shared/error-state';
 import { Skeleton } from '@/components/ui/skeleton';
 import { buildStageTimeline, timeUntil, isUrgent } from '@/utils/dashboard-utils';
+import { unwrapData } from '@/utils/unwrap-data';
 import type { Hackathon, StageConfig, Rule, Prize, ProblemStatement, Announcement } from '@/types/hackathon';
 import type { Registration } from '@/types/registration';
 
@@ -36,7 +37,7 @@ interface HackathonData {
 
 function fetchHackathonData(slug: string): Promise<HackathonData> {
   return hackathonService.getBySlug(slug).then(async (res) => {
-    const hackathon: Hackathon = res.data ?? (res as unknown as Hackathon);
+    const hackathon = unwrapData<Hackathon>(res);
     const hid = hackathon.id;
     const [stagesRes, rulesRes, prizesRes, psRes, annRes] = await Promise.all([
       hackathonService.stages.list(hid),
@@ -47,11 +48,11 @@ function fetchHackathonData(slug: string): Promise<HackathonData> {
     ]);
     return {
       hackathon,
-      stages: (stagesRes.data ?? stagesRes) as StageConfig[],
-      rules: (rulesRes.data ?? rulesRes) as Rule[],
-      prizes: (prizesRes.data ?? prizesRes) as Prize[],
-      problemStatements: (psRes.data ?? psRes) as ProblemStatement[],
-      announcements: (annRes.data ?? annRes) as Announcement[],
+      stages: unwrapData<StageConfig[]>(stagesRes),
+      rules: unwrapData<Rule[]>(rulesRes),
+      prizes: unwrapData<Prize[]>(prizesRes),
+      problemStatements: unwrapData<ProblemStatement[]>(psRes),
+      announcements: unwrapData<Announcement[]>(annRes),
     };
   });
 }
@@ -64,8 +65,9 @@ function RegistrationBanner({
   hackathon: Hackathon;
 }) {
   const now = new Date();
-  const regOpen = now >= new Date(hackathon.registrationStartDate) && now <= new Date(hackathon.registrationEndDate);
-  const regClosed = now > new Date(hackathon.registrationEndDate);
+  const deadline = new Date(hackathon.registrationDeadline);
+  const regOpen = now <= deadline;
+  const regClosed = now > deadline;
 
   if (registration?.status === 'APPROVED') {
     return (
@@ -108,8 +110,8 @@ function RegistrationBanner({
       <div className="flex items-center gap-2 rounded-lg bg-accent/5 p-3 text-sm text-accent">
         <CheckCircle2 className="h-4 w-4 shrink-0" />
         Registration is open.{' '}
-        {isUrgent(hackathon.registrationEndDate) && (
-          <span className="font-medium">Closes in {timeUntil(hackathon.registrationEndDate)}!</span>
+        {isUrgent(hackathon.registrationDeadline) && (
+          <span className="font-medium">Closes in {timeUntil(hackathon.registrationDeadline)}!</span>
         )}
       </div>
     );
@@ -161,7 +163,7 @@ export function HackathonDetailPage() {
 
   const { data: myRegs } = useQuery({
     queryKey: ['my-registrations', data?.hackathon?.id],
-    queryFn: () => registrationService.my().then((r) => (r.data ?? r) as Registration[]),
+    queryFn: () => registrationService.my().then((r) => unwrapData<Registration[]>(r)),
     enabled: !!data?.hackathon?.id && isAuthenticated,
   });
 
@@ -208,8 +210,8 @@ export function HackathonDetailPage() {
         <Card className="p-4 text-center">
           <Calendar className="mx-auto h-5 w-5 text-accent mb-1" />
           <p className="text-xs text-text-muted">Registration Closes</p>
-          {new Date(hackathon.registrationEndDate) > new Date() ? (
-            <CountdownTimer targetDate={hackathon.registrationEndDate} />
+          {new Date(hackathon.registrationDeadline) > new Date() ? (
+            <CountdownTimer targetDate={hackathon.registrationDeadline} />
           ) : (
             <p className="text-sm font-medium text-error mt-1">Closed</p>
           )}
@@ -231,7 +233,7 @@ export function HackathonDetailPage() {
             {hackathon.minTeamSize}–{hackathon.maxTeamSize}
           </p>
           <p className="text-xs text-text-muted mt-0.5">
-            {hackathon.allowSoloRegistration ? 'Solo allowed' : 'Team required'}
+            {hackathon.minTeamSize === 1 ? 'Solo allowed' : 'Team required'}
           </p>
         </Card>
 
@@ -270,7 +272,7 @@ export function HackathonDetailPage() {
         {!registration && (
           <Button
             size="lg"
-            className="gap-2 bg-gradient-to-r from-accent to-pink hover:opacity-90 w-full sm:w-auto"
+            className="gap-2 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90 w-full sm:w-auto"
             onClick={() => {
               if (isAuthenticated) {
                 navigate(`/hackathons/${slug}/register`);

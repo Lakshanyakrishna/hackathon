@@ -6,6 +6,7 @@ import { hackathonService } from '@/services/hackathons';
 import { submissionService } from '@/services/submissions';
 import { activityLogService } from '@/services/activity-logs';
 import { deriveNextAction, deriveCurrentStage } from '@/utils/dashboard-utils';
+import { unwrapData } from '@/utils/unwrap-data';
 import type { DashboardData, NextAction } from '@/types/dashboard';
 import type { Hackathon, StageConfig } from '@/types/hackathon';
 import type { Registration } from '@/types/registration';
@@ -16,43 +17,35 @@ import type { Notification, ActivityLog } from '@/types/api';
 export function useDashboard(): DashboardData {
   const registrationsQuery = useQuery({
     queryKey: ['dashboard-registrations'],
-    queryFn: () => registrationService.my().then((r) => (r.data ?? r) as Registration[]),
+    queryFn: () => registrationService.my().then((r) => unwrapData<Registration[]>(r)),
     staleTime: 30_000,
     retry: 1,
   });
 
   const teamsQuery = useQuery({
     queryKey: ['dashboard-teams'],
-    queryFn: () => teamService.getMyTeams().then((r) => (r.data ?? r) as Team[]),
+    queryFn: () => teamService.getMyTeams().then((r) => unwrapData<Team[]>(r)),
     staleTime: 30_000,
     retry: 1,
   });
 
   const invitationsQuery = useQuery({
     queryKey: ['dashboard-invitations'],
-    queryFn: () => teamService.invitations.pending().then((r) => (r.data ?? r) as TeamInvitation[]),
+    queryFn: () => teamService.invitations.pending().then((r) => unwrapData<TeamInvitation[]>(r)),
     staleTime: 30_000,
     retry: 1,
   });
 
   const notificationsQuery = useQuery({
     queryKey: ['dashboard-notifications'],
-    queryFn: () =>
-      notificationService.list({ limit: '10' }).then((r) => {
-        const res = r.data ?? r;
-        return (Array.isArray(res) ? res : (res as { data: Notification[] }).data) as Notification[];
-      }),
+    queryFn: () => notificationService.list({ limit: '10' }).then((r) => unwrapData<Notification[]>(r)),
     staleTime: 30_000,
     retry: 1,
   });
 
   const activityLogsQuery = useQuery({
     queryKey: ['dashboard-activity-logs'],
-    queryFn: () =>
-      activityLogService.my({ limit: '10' }).then((r) => {
-        const res = r.data ?? r;
-        return (Array.isArray(res) ? res : (res as { data: ActivityLog[] }).data) as ActivityLog[];
-      }),
+    queryFn: () => activityLogService.my({ limit: '10' }).then((r) => unwrapData<ActivityLog[]>(r)),
     staleTime: 30_000,
     retry: 1,
   });
@@ -65,9 +58,16 @@ export function useDashboard(): DashboardData {
 
   const hackathonId = registration?.hackathon?.id ?? registration?.hackathonId ?? null;
 
+  const hackathonQuery = useQuery({
+    queryKey: ['dashboard-hackathon', hackathonId],
+    queryFn: () => hackathonService.getById(hackathonId!).then((r) => unwrapData<Hackathon>(r)),
+    enabled: !!hackathonId,
+    staleTime: 60_000,
+  });
+
   const stagesQuery = useQuery({
     queryKey: ['dashboard-stages', hackathonId],
-    queryFn: () => hackathonService.stages.list(hackathonId!).then((r) => (r.data ?? r) as StageConfig[]),
+    queryFn: () => hackathonService.stages.list(hackathonId!).then((r) => unwrapData<StageConfig[]>(r)),
     enabled: !!hackathonId,
     staleTime: 60_000,
   });
@@ -77,7 +77,7 @@ export function useDashboard(): DashboardData {
   const submissionsQuery = useQuery({
     queryKey: ['dashboard-submissions', teamId],
     queryFn: () =>
-      submissionService.list(teamId ? { teamId } : undefined).then((r) => (r.data ?? r) as Submission[]),
+      submissionService.list(teamId ? { teamId } : undefined).then((r) => unwrapData<Submission[]>(r)),
     enabled: !!teamId,
     staleTime: 30_000,
   });
@@ -176,7 +176,7 @@ export function useDashboard(): DashboardData {
 
   return {
     registration,
-    hackathon: (registration.hackathon as Hackathon | undefined) as Hackathon | null ?? null,
+    hackathon: hackathonQuery.data ?? null,
     team,
     stages: stagesSorted,
     currentStage,

@@ -49,21 +49,21 @@ function AdminDashboard() {
               transition={{ delay: 0.1 }}
             >
               <Card
-                className="relative cursor-pointer overflow-hidden border-accent/20 bg-gradient-to-br from-accent/15 to-purple-500/5 transition-all hover:shadow-lg hover:border-accent/40 group"
+                className="relative cursor-pointer overflow-hidden border-accent/20 bg-gradient-to-br from-accent/15 to-navy-dark/5 transition-all hover:shadow-lg hover:border-accent/40 group"
                 onClick={() => setShowCreateDialog(true)}
               >
                 <div className="pointer-events-none absolute inset-0">
                   <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-accent/10 blur-[80px]" />
                 </div>
                 <CardContent className="relative space-y-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-pink shadow-lg">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-accent-dim shadow-lg">
                     <Plus className="h-7 w-7 text-white" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-text-primary">Create Hackathon</h3>
                     <p className="mt-1 text-sm text-text-muted">Set up a new hackathon with prizes, rules, stages, and problem statements</p>
                   </div>
-                  <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-pink hover:opacity-90 group-hover:shadow-md transition-all">
+                  <Button size="sm" className="gap-1.5 bg-gradient-to-r from-accent to-accent-dim hover:opacity-90 group-hover:shadow-md transition-all">
                     Get Started <ArrowRight className="h-4 w-4" />
                   </Button>
                 </CardContent>
@@ -76,21 +76,21 @@ function AdminDashboard() {
               transition={{ delay: 0.2 }}
             >
               <Card
-                className="relative cursor-pointer overflow-hidden border-accent/20 bg-gradient-to-br from-accent/10 to-purple-500/5 transition-all hover:shadow-lg hover:border-accent/40 group"
+                className="relative cursor-pointer overflow-hidden border-accent/20 bg-gradient-to-br from-accent/10 to-navy-dark/5 transition-all hover:shadow-lg hover:border-accent/40 group"
                 onClick={() => navigate('/organize')}
               >
                 <div className="pointer-events-none absolute inset-0">
                   <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-accent/10 blur-[80px]" />
                 </div>
                 <CardContent className="relative space-y-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-accent shadow-lg">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-navy-dark to-accent shadow-lg">
                     <LayoutList className="h-7 w-7 text-white" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-text-primary">Manage Hackathons</h3>
                     <p className="mt-1 text-sm text-text-muted">Edit existing hackathons, review submissions, and declare winners</p>
                   </div>
-                  <Button size="sm" className="gap-1.5 bg-gradient-to-r from-purple-500 to-accent hover:opacity-90 group-hover:shadow-md transition-all">
+                  <Button size="sm" className="gap-1.5 bg-gradient-to-r from-navy-dark to-accent hover:opacity-90 group-hover:shadow-md transition-all">
                     View All <ArrowRight className="h-4 w-4" />
                   </Button>
                 </CardContent>
