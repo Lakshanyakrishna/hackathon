@@ -17,7 +17,7 @@ import { cn } from '@/utils/cn';
 import { unwrapData } from '@/utils/unwrap-data';
 import type { Hackathon } from '@/types/hackathon';
 
-import { Registration } from '@/types/registration';
+import type { Registration } from '@/types/registration';
 
 export function AnalyticsPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -100,7 +100,7 @@ export function AnalyticsPage() {
       icon: DollarSign,
       stages: [
         { label: 'Total Registrations', value: totalReg, pct: 100 },
-        { label: 'Initiated Payments', value: registrations?.filter((r: Record<string, unknown>) => r.payment).length ?? 0, pct: totalReg > 0 ? Math.round(((registrations?.filter((r: Record<string, unknown>) => r.payment).length ?? 0) / totalReg) * 100) : 0 },
+        { label: 'Initiated Payments', value: registrations?.filter((r) => r.payment).length ?? 0, pct: totalReg > 0 ? Math.round(((registrations?.filter((r) => r.payment).length ?? 0) / totalReg) * 100) : 0 },
         { label: 'Successful Payments', value: paidReg, pct: totalReg > 0 ? Math.round((paidReg / totalReg) * 100) : 0 },
       ],
     },
@@ -138,7 +138,7 @@ export function AnalyticsPage() {
     let csv = '';
     switch (type) {
       case 'registrations':
-        csv = 'ID,Status,Registered At\n' + registrations.map((r: Record<string, unknown>) => `${r.id},${r.status},${r.registeredAt}`).join('\n');
+        csv = 'ID,Status,Registered At\n' + registrations.map((r) => `${r.id},${r.status},${r.registeredAt}`).join('\n');
         break;
     }
     const blob = new Blob([csv], { type: 'text/csv' });

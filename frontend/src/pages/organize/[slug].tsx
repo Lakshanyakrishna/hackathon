@@ -128,7 +128,7 @@ export function OrganizerWorkspacePage() {
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.15 }}
         >
-          {tab === 'overview' && <OverviewTab hackathon={hackathon} />}
+          {tab === 'overview' && <OverviewTab hackathon={hackathon} setTab={setTab} />}
           {tab === 'stages' && <StagesSection hackathon={hackathon} />}
           {tab === 'rules' && <RulesSection hackathon={hackathon} />}
           {tab === 'prizes' && <PrizesSection hackathon={hackathon} />}
@@ -150,7 +150,7 @@ export function OrganizerWorkspacePage() {
 
 /* ===================== OVERVIEW ===================== */
 
-function OverviewTab({ hackathon }: { hackathon: Hackathon }) {
+function OverviewTab({ hackathon, setTab }: { hackathon: Hackathon; setTab: (t: string) => void }) {
   const navigate = useNavigate();
 
   const { data: funnel } = useQuery({

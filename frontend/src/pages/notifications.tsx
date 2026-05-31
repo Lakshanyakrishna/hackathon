@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Bell, CheckCheck, RefreshCw, Clock, AlertTriangle } from 'lucide-react';
+import { CheckCheck, RefreshCw, Clock } from 'lucide-react';
 import { notificationService } from '@/services/notifications';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
