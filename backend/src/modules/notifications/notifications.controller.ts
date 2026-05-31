@@ -5,6 +5,8 @@ import {
   Param,
   Query,
   UseGuards,
+  ParseIntPipe,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -29,8 +31,8 @@ export class NotificationsController {
   @ApiQuery({ name: 'limit', required: false })
   async findByUser(
     @CurrentUser('id') userId: string,
-    @Query('page') page = 1,
-    @Query('limit') limit = 20,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
   ) {
     return this.notificationsService.findByUser(userId, page, limit);
   }

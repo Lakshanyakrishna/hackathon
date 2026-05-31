@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { UserRole } from '@prisma/client';
@@ -22,8 +22,8 @@ export class ActivityLogsController {
   @ApiQuery({ name: 'limit', required: false })
   async findByHackathon(
     @Param('hackathonId') hackathonId: string,
-    @Query('page') page = 1,
-    @Query('limit') limit = 50,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
     @CurrentUser('id') _userId: string,
   ) {
     return this.activityLogsService.findByHackathon(hackathonId, page, limit);
@@ -34,8 +34,8 @@ export class ActivityLogsController {
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   async findByUser(
-    @Query('page') page = 1,
-    @Query('limit') limit = 50,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
     @CurrentUser('id') userId: string,
   ) {
     return this.activityLogsService.findByUser(userId, page, limit);
