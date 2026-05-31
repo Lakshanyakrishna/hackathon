@@ -24,7 +24,7 @@ export class ActivityLogsController {
     @Param('hackathonId') hackathonId: string,
     @Query('page') page = 1,
     @Query('limit') limit = 50,
-    @CurrentUser('id') userId: string,
+    @CurrentUser('id') _userId: string,
   ) {
     return this.activityLogsService.findByHackathon(hackathonId, page, limit);
   }

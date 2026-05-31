@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Settings, ChevronRight, Clock, Calendar, Star, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Plus, Settings, ChevronRight, Clock, Calendar, Star, CheckCircle2 } from 'lucide-react';
 import type { StageConfig, RequirementField } from '@/types/hackathon';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

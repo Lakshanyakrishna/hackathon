@@ -4,10 +4,12 @@ import {
   NotFoundException,
   Logger,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ActivityLogsService } from '../activity-logs/activity-logs.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Prisma } from '@prisma/client';
+import Razorpay from 'razorpay';
 import * as crypto from 'crypto';
 import { OrderResponseDto } from './dto/order-response.dto';
 
@@ -36,11 +38,11 @@ export class PaymentsService {
     private prisma: PrismaService,
     private activityLogsService: ActivityLogsService,
     private notificationsService: NotificationsService,
+    private configService: ConfigService,
   ) {
-    const Razorpay = require('razorpay');
     this.razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
+      key_id: this.configService.get<string>('RAZORPAY_KEY_ID') || '',
+      key_secret: this.configService.get<string>('RAZORPAY_KEY_SECRET') || '',
     });
   }
 
@@ -90,7 +92,7 @@ export class PaymentsService {
           razorpayOrderId: existingPayment.razorpayOrderId,
           amount: toPaise(existingPayment.amount),
           currency: existingPayment.currency,
-          keyId: process.env.RAZORPAY_KEY_ID || '',
+          keyId: this.configService.get('RAZORPAY_KEY_ID') || '',
           registrationId: registration.id,
         };
       }
@@ -160,13 +162,13 @@ export class PaymentsService {
       razorpayOrderId: razorpayOrder.id,
       amount: paise,
       currency,
-      keyId: process.env.RAZORPAY_KEY_ID || '',
+      keyId: this.configService.get('RAZORPAY_KEY_ID') || '',
       registrationId: registration.id,
     };
   }
 
   async handleWebhook(rawBody: string, signature: string): Promise<{ received: boolean }> {
-    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    const webhookSecret = this.configService.get('RAZORPAY_WEBHOOK_SECRET');
 
     if (!webhookSecret) {
       this.logger.error('RAZORPAY_WEBHOOK_SECRET not configured');

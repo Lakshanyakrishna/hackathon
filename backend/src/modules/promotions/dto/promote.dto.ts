@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsArray, IsOptional, IsString, IsBoolean, ArrayMinSize } from 'class-validator';
 
 export class PromoteDto {
